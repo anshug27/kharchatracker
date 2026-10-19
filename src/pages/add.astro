@@ -1,0 +1,319 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout title="Add Transaction - KharchaTracker" activeNav="add">
+
+  <!-- Type Toggle -->
+  <div class="flex gap-2 mb-5" style="background: var(--color-surface); border-radius: 0.75rem; padding: 4px; border: 1px solid var(--color-border);">
+    <button id="type-expense" class="flex-1 py-3 rounded-lg font-semibold text-sm transition-all" style="background: linear-gradient(135deg, #ef4444, #dc2626); color: white; box-shadow: 0 2px 8px rgba(239,68,68,0.3);">
+      Expense
+    </button>
+    <button id="type-income" class="flex-1 py-3 rounded-lg font-semibold text-sm transition-all" style="background: transparent; color: var(--color-text-muted);">
+      Income
+    </button>
+  </div>
+
+  <!-- Amount Input -->
+  <div class="card mb-4 text-center">
+    <label class="text-sm mb-3 block" style="color: var(--color-text-muted);">Amount</label>
+    <div class="flex items-center justify-center gap-1">
+      <span class="text-3xl font-bold" style="color: var(--color-text-muted);">₹</span>
+      <input id="amount" type="number" inputmode="decimal" placeholder="0" class="text-5xl font-bold bg-transparent border-none outline-none text-center w-full" style="color: var(--color-text); max-width: 260px;" min="0" step="1" />
+    </div>
+  </div>
+
+  <!-- Quick Amounts -->
+  <div class="flex gap-2 mb-4 overflow-x-auto pb-2 -mx-1 px-1" style="scrollbar-width: none;">
+    <button class="quick-amount chip" data-amount="50">₹50</button>
+    <button class="quick-amount chip" data-amount="100">₹100</button>
+    <button class="quick-amount chip" data-amount="200">₹200</button>
+    <button class="quick-amount chip" data-amount="500">₹500</button>
+    <button class="quick-amount chip" data-amount="1000">₹1K</button>
+    <button class="quick-amount chip" data-amount="2000">₹2K</button>
+    <button class="quick-amount chip" data-amount="5000">₹5K</button>
+    <button class="quick-amount chip" data-amount="10000">₹10K</button>
+  </div>
+
+  <!-- Category Selection -->
+  <div class="card mb-4">
+    <label class="text-sm mb-3 block font-medium" style="color: var(--color-text-muted);">Category</label>
+    <div id="category-grid" class="grid grid-cols-4 gap-2">
+    </div>
+  </div>
+
+  <!-- Description -->
+  <div class="card mb-4">
+    <label class="text-sm mb-2 block font-medium" style="color: var(--color-text-muted);">Description (optional)</label>
+    <input id="description" type="text" placeholder="What was this for?" class="input-field" maxlength="100" />
+  </div>
+
+  <!-- Date & Payment Method -->
+  <div class="grid grid-cols-2 gap-3 mb-4">
+    <div class="card" style="padding: 0.875rem;">
+      <label class="text-xs mb-1 block font-medium" style="color: var(--color-text-muted);">Date</label>
+      <input id="expense-date" type="date" class="input-field" style="padding: 0.5rem 0.75rem; font-size: 0.8125rem;" />
+    </div>
+    <div class="card" style="padding: 0.875rem;">
+      <label class="text-xs mb-1 block font-medium" style="color: var(--color-text-muted);">Payment</label>
+      <select id="payment-method" class="input-field" style="padding: 0.5rem 0.75rem; font-size: 0.8125rem;">
+        <option value="UPI">UPI</option>
+        <option value="Cash">Cash</option>
+        <option value="Credit Card">Credit Card</option>
+        <option value="Debit Card">Debit Card</option>
+        <option value="Net Banking">Net Banking</option>
+        <option value="Wallet">Wallet</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Recurring Toggle -->
+  <div class="card mb-4 flex items-center justify-between">
+    <div>
+      <p class="text-sm font-medium" style="color: var(--color-text);">Recurring</p>
+      <p class="text-xs" style="color: var(--color-text-muted);">Repeats automatically</p>
+    </div>
+    <div id="recurring-toggle" class="toggle-switch"></div>
+  </div>
+
+  <div id="recurring-options" class="card mb-4 hidden">
+    <label class="text-sm mb-2 block font-medium" style="color: var(--color-text-muted);">Frequency</label>
+    <div class="flex gap-2">
+      <button class="freq-btn chip" data-freq="daily">Daily</button>
+      <button class="freq-btn chip active" data-freq="monthly">Monthly</button>
+      <button class="freq-btn chip" data-freq="yearly">Yearly</button>
+    </div>
+  </div>
+
+  <!-- Tags -->
+  <div class="card mb-4">
+    <label class="text-sm mb-2 block font-medium" style="color: var(--color-text-muted);">Tags (optional)</label>
+    <div class="flex flex-wrap gap-2 mb-2" id="tags-container"></div>
+    <div class="flex gap-2">
+      <input id="tag-input" type="text" placeholder="Add tag..." class="input-field" style="padding: 0.5rem 0.75rem; font-size: 0.8125rem;" maxlength="20" />
+      <button id="add-tag-btn" class="btn-secondary btn-sm">Add</button>
+    </div>
+  </div>
+
+  <!-- Save Button -->
+  <button id="save-btn" class="btn-primary w-full" style="padding: 1rem; font-size: 1.0625rem; margin-bottom: 1.5rem;">
+    Save Expense
+  </button>
+
+</Layout>
+
+<script>
+  const EXPENSE_CATEGORIES = [
+    { name: 'Food & Dining', icon: '🍔', color: '#f59e0b' },
+    { name: 'Transport', icon: '🚗', color: '#3b82f6' },
+    { name: 'Shopping', icon: '🛍️', color: '#ec4899' },
+    { name: 'Bills & Utilities', icon: '💡', color: '#8b5cf6' },
+    { name: 'Entertainment', icon: '🎬', color: '#ef4444' },
+    { name: 'Health', icon: '🏥', color: '#10b981' },
+    { name: 'Education', icon: '📚', color: '#6366f1' },
+    { name: 'Rent & Housing', icon: '🏠', color: '#f97316' },
+    { name: 'Subscriptions', icon: '📱', color: '#14b8a6' },
+    { name: 'Personal Care', icon: '💆', color: '#d946ef' },
+    { name: 'Investments', icon: '📈', color: '#059669' },
+    { name: 'Other', icon: '📌', color: '#64748b' },
+  ];
+
+  const INCOME_CATEGORIES = [
+    { name: 'Salary', icon: '💼', color: '#10b981' },
+    { name: 'Freelance', icon: '💻', color: '#3b82f6' },
+    { name: 'Business', icon: '🏪', color: '#f59e0b' },
+    { name: 'Investment Returns', icon: '📈', color: '#6366f1' },
+    { name: 'Rental Income', icon: '🏠', color: '#f97316' },
+    { name: 'Gift', icon: '🎁', color: '#ec4899' },
+    { name: 'Refund', icon: '💰', color: '#14b8a6' },
+    { name: 'Other', icon: '📌', color: '#64748b' },
+  ];
+
+  let currentType = 'expense';
+  let selectedCategory = '';
+  let selectedFreq = 'monthly';
+  let isRecurring = false;
+  let tags: string[] = [];
+
+  function init() {
+    const dateInput = document.getElementById('expense-date') as HTMLInputElement;
+    dateInput.value = new Date().toISOString().split('T')[0];
+
+    // Type toggle
+    const expBtn = document.getElementById('type-expense')!;
+    const incBtn = document.getElementById('type-income')!;
+
+    expBtn.addEventListener('click', () => {
+      currentType = 'expense';
+      expBtn.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+      expBtn.style.color = 'white';
+      expBtn.style.boxShadow = '0 2px 8px rgba(239,68,68,0.3)';
+      incBtn.style.background = 'transparent';
+      incBtn.style.color = 'var(--color-text-muted)';
+      incBtn.style.boxShadow = 'none';
+      document.getElementById('save-btn')!.textContent = 'Save Expense';
+      renderCategories(EXPENSE_CATEGORIES);
+    });
+
+    incBtn.addEventListener('click', () => {
+      currentType = 'income';
+      incBtn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+      incBtn.style.color = 'white';
+      incBtn.style.boxShadow = '0 2px 8px rgba(16,185,129,0.3)';
+      expBtn.style.background = 'transparent';
+      expBtn.style.color = 'var(--color-text-muted)';
+      expBtn.style.boxShadow = 'none';
+      document.getElementById('save-btn')!.textContent = 'Save Income';
+      renderCategories(INCOME_CATEGORIES);
+    });
+
+    renderCategories(EXPENSE_CATEGORIES);
+
+    // Quick amounts
+    document.querySelectorAll('.quick-amount').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const val = (btn as HTMLElement).dataset.amount || '';
+        (document.getElementById('amount') as HTMLInputElement).value = val;
+        document.querySelectorAll('.quick-amount').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      });
+    });
+
+    // Recurring toggle
+    const recurringToggle = document.getElementById('recurring-toggle')!;
+    const recurringOptions = document.getElementById('recurring-options')!;
+    recurringToggle.addEventListener('click', () => {
+      isRecurring = !isRecurring;
+      recurringToggle.classList.toggle('active', isRecurring);
+      recurringOptions.classList.toggle('hidden', !isRecurring);
+    });
+
+    // Frequency
+    document.querySelectorAll('.freq-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.freq-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        selectedFreq = (btn as HTMLElement).dataset.freq || 'monthly';
+      });
+    });
+
+    // Tags
+    document.getElementById('add-tag-btn')!.addEventListener('click', addTag);
+    document.getElementById('tag-input')!.addEventListener('keypress', (e) => {
+      if ((e as KeyboardEvent).key === 'Enter') { e.preventDefault(); addTag(); }
+    });
+
+    // Save
+    document.getElementById('save-btn')!.addEventListener('click', saveTransaction);
+
+    // Focus amount on load
+    setTimeout(() => (document.getElementById('amount') as HTMLInputElement).focus(), 300);
+  }
+
+  function renderCategories(categories: {name: string; icon: string; color: string}[]) {
+    const grid = document.getElementById('category-grid')!;
+    selectedCategory = '';
+    grid.innerHTML = categories.map(cat => `
+      <div class="cat-pill" data-cat="${cat.name}">
+        <span class="cat-icon">${cat.icon}</span>
+        <span class="cat-name">${cat.name.length > 10 ? cat.name.split(' ')[0] : cat.name}</span>
+      </div>
+    `).join('');
+
+    grid.querySelectorAll('.cat-pill').forEach(btn => {
+      btn.addEventListener('click', () => {
+        grid.querySelectorAll('.cat-pill').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        selectedCategory = (btn as HTMLElement).dataset.cat || '';
+      });
+    });
+  }
+
+  function addTag() {
+    const input = document.getElementById('tag-input') as HTMLInputElement;
+    const val = input.value.trim();
+    if (val && tags.length < 5 && !tags.includes(val)) {
+      tags.push(val);
+      renderTags();
+      input.value = '';
+    }
+  }
+
+  function renderTags() {
+    const container = document.getElementById('tags-container')!;
+    container.innerHTML = tags.map(t => `
+      <span class="chip active" style="padding: 0.25rem 0.75rem; font-size: 0.75rem;">
+        ${t}
+        <button class="remove-tag" data-tag="${t}" style="margin-left: 4px; cursor: pointer; opacity: 0.7;">&times;</button>
+      </span>
+    `).join('');
+    container.querySelectorAll('.remove-tag').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        tags = tags.filter(t => t !== (btn as HTMLElement).dataset.tag);
+        renderTags();
+      });
+    });
+  }
+
+  function showToast(message: string, type: 'success' | 'error') {
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3200);
+  }
+
+  function saveTransaction() {
+    const amount = parseFloat((document.getElementById('amount') as HTMLInputElement).value);
+    const description = (document.getElementById('description') as HTMLInputElement).value.trim();
+    const date = (document.getElementById('expense-date') as HTMLInputElement).value;
+    const paymentMethod = (document.getElementById('payment-method') as HTMLSelectElement).value;
+
+    if (!amount || amount <= 0) {
+      showToast('Please enter a valid amount', 'error');
+      return;
+    }
+    if (!selectedCategory) {
+      showToast('Please select a category', 'error');
+      return;
+    }
+    if (!date) {
+      showToast('Please select a date', 'error');
+      return;
+    }
+
+    const expense = {
+      id: Date.now().toString(36) + Math.random().toString(36).substr(2, 9),
+      amount,
+      category: selectedCategory,
+      description,
+      date: new Date(date).toISOString(),
+      type: currentType,
+      isRecurring,
+      recurringFrequency: isRecurring ? selectedFreq : undefined,
+      tags: tags.length > 0 ? [...tags] : undefined,
+      paymentMethod,
+      createdAt: new Date().toISOString(),
+    };
+
+    const expenses = JSON.parse(localStorage.getItem('kt_expenses') || '[]');
+    expenses.push(expense);
+    localStorage.setItem('kt_expenses', JSON.stringify(expenses));
+
+    showToast(`${currentType === 'income' ? 'Income' : 'Expense'} saved!`, 'success');
+
+    // Reset form
+    (document.getElementById('amount') as HTMLInputElement).value = '';
+    (document.getElementById('description') as HTMLInputElement).value = '';
+    selectedCategory = '';
+    tags = [];
+    renderTags();
+    document.querySelectorAll('.cat-pill').forEach(b => b.classList.remove('selected'));
+    document.querySelectorAll('.quick-amount').forEach(b => b.classList.remove('active'));
+
+    setTimeout(() => { window.location.href = '/'; }, 600);
+  }
+
+  document.addEventListener('DOMContentLoaded', init);
+  document.addEventListener('astro:page-load', init);
+</script>

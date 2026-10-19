@@ -1,0 +1,12 @@
+---
+interface Props {
+  format?: 'auto' | 'horizontal' | 'vertical' | 'rectangle';
+  className?: string;
+}
+const { format = 'auto', className = '' } = Astro.props;
+---
+<div class={`my-4 min-h-[90px] flex items-center justify-center rounded-xl text-xs ${className}`} style="background: var(--color-surface-alt); border: 1.5px dashed var(--color-border); color: var(--color-text-muted);">
+  <!-- Replace with actual AdSense code after approval -->
+  <!-- <ins class="adsbygoogle" style="display:block" data-ad-format={format} data-ad-client="ca-pub-XXXXXXX" data-ad-slot="XXXXXXX"></ins> -->
+  <span style="opacity: 0.4;">Ad Space</span>
+</div>

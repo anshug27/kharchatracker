@@ -1,0 +1,1042 @@
+---
+import Layout from '../layouts/Layout.astro';
+import AdUnit from '../components/AdUnit.astro';
+---
+<Layout title="AI Spending Insights - KharchaTracker" activeNav="insights">
+
+  <!-- Page Header -->
+  <div class="flex items-center justify-between mb-5">
+    <div>
+      <h1 class="text-xl font-bold">AI Insights</h1>
+      <p class="text-xs" style="color: var(--color-text-muted);">Smart analysis of your spending</p>
+    </div>
+    <div class="flex items-center gap-2">
+      <select id="insight-period" class="text-xs px-2 py-1 rounded-lg border" style="border-color: var(--color-border); background: var(--color-surface);">
+        <option value="month">This Month</option>
+        <option value="last">Last Month</option>
+        <option value="quarter">Last 3 Months</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Spending Score Widget -->
+  <div class="card text-center mb-5">
+    <p class="text-sm font-semibold mb-1" style="color: var(--color-text);">Your Spending Score</p>
+    <p class="text-xs mb-4" style="color: var(--color-text-muted);">Based on your income-to-expense ratio, budgets & habits</p>
+    <div class="relative inline-flex items-center justify-center mb-3">
+      <svg class="w-36 h-36 -rotate-90" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="42" fill="none" stroke="var(--color-border)" stroke-width="7" opacity="0.3"/>
+        <circle id="score-ring" cx="50" cy="50" r="42" fill="none" stroke="#6366f1" stroke-width="7" stroke-linecap="round" stroke-dasharray="263.9" stroke-dashoffset="263.9" class="transition-all ease-out" style="transition-duration: 1500ms;"/>
+      </svg>
+      <div class="absolute text-center">
+        <span id="score-value" class="text-4xl font-extrabold leading-none">--</span>
+        <p id="score-label" class="text-xs font-medium mt-1" style="color: var(--color-text-muted);">Loading</p>
+      </div>
+    </div>
+    <div id="score-breakdown" class="grid grid-cols-3 gap-2 mt-3">
+      <div class="rounded-xl p-2" style="background: var(--color-surface-alt);">
+        <p class="text-xs" style="color: var(--color-text-muted);">Budget</p>
+        <p id="score-budget" class="text-sm font-bold text-emerald-500">--</p>
+      </div>
+      <div class="rounded-xl p-2" style="background: var(--color-surface-alt);">
+        <p class="text-xs" style="color: var(--color-text-muted);">Savings</p>
+        <p id="score-savings" class="text-sm font-bold text-blue-500">--</p>
+      </div>
+      <div class="rounded-xl p-2" style="background: var(--color-surface-alt);">
+        <p class="text-xs" style="color: var(--color-text-muted);">Habits</p>
+        <p id="score-habits" class="text-sm font-bold text-purple-500">--</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Smart Insights Cards -->
+  <div class="mb-5">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="font-semibold flex items-center gap-2">
+        <span class="text-lg">💡</span> Smart Insights
+      </h2>
+      <span id="insights-count" class="badge bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300">0 tips</span>
+    </div>
+    <div id="insights-container" class="space-y-3">
+      <!-- Loading skeleton -->
+      <div class="card animate-pulse">
+        <div class="flex items-start gap-3">
+          <div class="w-8 h-8 rounded-full" style="background: var(--color-surface-alt);"></div>
+          <div class="flex-1">
+            <div class="h-4 rounded w-3/4 mb-2" style="background: var(--color-surface-alt);"></div>
+            <div class="h-3 rounded w-full" style="background: var(--color-surface-alt);"></div>
+          </div>
+        </div>
+      </div>
+      <div class="card animate-pulse">
+        <div class="flex items-start gap-3">
+          <div class="w-8 h-8 rounded-full" style="background: var(--color-surface-alt);"></div>
+          <div class="flex-1">
+            <div class="h-4 rounded w-2/3 mb-2" style="background: var(--color-surface-alt);"></div>
+            <div class="h-3 rounded w-5/6" style="background: var(--color-surface-alt);"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <AdUnit />
+
+  <!-- Spending Patterns -->
+  <div class="mb-5">
+    <h2 class="font-semibold flex items-center gap-2 mb-3">
+      <span class="text-lg">📈</span> Spending Patterns
+    </h2>
+
+    <!-- Daily Spending Trend -->
+    <div class="card mb-3">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-sm font-semibold">Daily Spending Trend</h3>
+        <span id="trend-avg" class="text-xs" style="color: var(--color-text-muted);">Avg: --</span>
+      </div>
+      <div class="chart-container" style="height: 200px;">
+        <canvas id="daily-trend-chart"></canvas>
+      </div>
+      <div id="trend-no-data" class="hidden text-center py-6" style="color: var(--color-text-muted);">
+        <p class="text-2xl mb-1">📉</p>
+        <p class="text-sm">Add expenses to see your daily trend</p>
+      </div>
+    </div>
+
+    <!-- Day of Week Heatmap -->
+    <div class="card">
+      <h3 class="text-sm font-semibold mb-3">Day-of-Week Heatmap</h3>
+      <p class="text-xs mb-3" style="color: var(--color-text-muted);">Which days do you spend the most?</p>
+      <div id="dow-heatmap" class="grid grid-cols-7 gap-1.5">
+        <div class="text-center">
+          <p class="text-[10px] mb-1" style="color: var(--color-text-muted);">Sun</p>
+          <div class="aspect-square rounded-lg flex items-center justify-center" style="background: var(--color-surface-alt);" data-day="0">
+            <span class="text-[10px] font-medium">--</span>
+          </div>
+        </div>
+        <div class="text-center">
+          <p class="text-[10px] mb-1" style="color: var(--color-text-muted);">Mon</p>
+          <div class="aspect-square rounded-lg flex items-center justify-center" style="background: var(--color-surface-alt);" data-day="1">
+            <span class="text-[10px] font-medium">--</span>
+          </div>
+        </div>
+        <div class="text-center">
+          <p class="text-[10px] mb-1" style="color: var(--color-text-muted);">Tue</p>
+          <div class="aspect-square rounded-lg flex items-center justify-center" style="background: var(--color-surface-alt);" data-day="2">
+            <span class="text-[10px] font-medium">--</span>
+          </div>
+        </div>
+        <div class="text-center">
+          <p class="text-[10px] mb-1" style="color: var(--color-text-muted);">Wed</p>
+          <div class="aspect-square rounded-lg flex items-center justify-center" style="background: var(--color-surface-alt);" data-day="3">
+            <span class="text-[10px] font-medium">--</span>
+          </div>
+        </div>
+        <div class="text-center">
+          <p class="text-[10px] mb-1" style="color: var(--color-text-muted);">Thu</p>
+          <div class="aspect-square rounded-lg flex items-center justify-center" style="background: var(--color-surface-alt);" data-day="4">
+            <span class="text-[10px] font-medium">--</span>
+          </div>
+        </div>
+        <div class="text-center">
+          <p class="text-[10px] mb-1" style="color: var(--color-text-muted);">Fri</p>
+          <div class="aspect-square rounded-lg flex items-center justify-center" style="background: var(--color-surface-alt);" data-day="5">
+            <span class="text-[10px] font-medium">--</span>
+          </div>
+        </div>
+        <div class="text-center">
+          <p class="text-[10px] mb-1" style="color: var(--color-text-muted);">Sat</p>
+          <div class="aspect-square rounded-lg flex items-center justify-center" style="background: var(--color-surface-alt);" data-day="6">
+            <span class="text-[10px] font-medium">--</span>
+          </div>
+        </div>
+      </div>
+      <div class="flex items-center justify-between mt-3">
+        <span class="text-[10px]" style="color: var(--color-text-muted);">Less</span>
+        <div class="flex gap-1">
+          <div class="w-3 h-3 rounded bg-emerald-100 dark:bg-emerald-900/30"></div>
+          <div class="w-3 h-3 rounded bg-emerald-300 dark:bg-emerald-700/50"></div>
+          <div class="w-3 h-3 rounded bg-amber-400 dark:bg-amber-600/60"></div>
+          <div class="w-3 h-3 rounded bg-red-400 dark:bg-red-600/60"></div>
+          <div class="w-3 h-3 rounded bg-red-600 dark:bg-red-500"></div>
+        </div>
+        <span class="text-[10px]" style="color: var(--color-text-muted);">More</span>
+      </div>
+      <p id="dow-summary" class="text-xs text-center mt-2" style="color: var(--color-text-muted);"></p>
+    </div>
+  </div>
+
+  <AdUnit />
+
+  <!-- Category Breakdown -->
+  <div class="mb-5">
+    <h2 class="font-semibold flex items-center gap-2 mb-3">
+      <span class="text-lg">📊</span> Category Breakdown
+    </h2>
+    <div id="category-breakdown" class="space-y-2">
+      <div class="card text-center py-8" style="color: var(--color-text-muted);">
+        <p class="text-3xl mb-2">📊</p>
+        <p class="text-sm">No expense data for this period</p>
+        <a href="/add" class="btn-primary inline-block mt-3 text-sm">Add Expense</a>
+      </div>
+    </div>
+  </div>
+
+  <AdUnit />
+
+  <!-- Deal Search Section -->
+  <div class="mb-5">
+    <h2 class="font-semibold flex items-center gap-2 mb-3">
+      <span class="text-lg">🔎</span> Find Better Deals
+    </h2>
+    <p class="text-xs mb-3" style="color: var(--color-text-muted);">Save money on your top spending categories</p>
+    <div id="deal-search-container" class="space-y-2">
+      <div class="card text-center py-6" style="color: var(--color-text-muted);">
+        <p class="text-2xl mb-2">🛒</p>
+        <p class="text-sm">Add expenses to get personalized deal suggestions</p>
+      </div>
+    </div>
+  </div>
+
+  <AdUnit />
+
+</Layout>
+
+<script>
+  import Chart from 'chart.js/auto';
+
+  function formatINR(amount: number): string {
+    return '\u20B9' + amount.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  }
+
+  interface Expense {
+    id: string;
+    amount: number;
+    category: string;
+    subcategory?: string;
+    description: string;
+    date: string;
+    type: 'expense' | 'income';
+    isRecurring?: boolean;
+    recurringFrequency?: string;
+    tags?: string[];
+    paymentMethod?: string;
+    createdAt: string;
+  }
+
+  interface Budget {
+    id: string;
+    category: string;
+    limit: number;
+    period: string;
+    createdAt: string;
+  }
+
+  interface Settings {
+    currency?: string;
+    currencySymbol?: string;
+    darkMode?: boolean;
+    categories?: string[];
+    paymentMethods?: string[];
+    monthlyIncome?: number;
+  }
+
+  interface Insight {
+    icon: string;
+    title: string;
+    desc: string;
+    type: 'warning' | 'tip' | 'achievement' | 'trend' | 'suggestion';
+  }
+
+  const catIcons: Record<string, string> = {
+    'Food & Dining': '🍔', 'Transport': '🚗', 'Shopping': '🛍️',
+    'Bills & Utilities': '💡', 'Entertainment': '🎬', 'Health': '🏥',
+    'Education': '📚', 'Rent & Housing': '🏠', 'Subscriptions': '📱',
+    'Personal Care': '💆', 'Investments': '📈', 'Other': '📌',
+    'Salary': '💼', 'Freelance': '💻', 'Groceries': '🛒',
+  };
+
+  const catColors: Record<string, string> = {
+    'Food & Dining': '#f59e0b', 'Transport': '#3b82f6', 'Shopping': '#ec4899',
+    'Bills & Utilities': '#8b5cf6', 'Entertainment': '#ef4444', 'Health': '#10b981',
+    'Education': '#6366f1', 'Rent & Housing': '#f97316', 'Subscriptions': '#14b8a6',
+    'Personal Care': '#d946ef', 'Investments': '#059669', 'Other': '#64748b',
+    'Groceries': '#84cc16',
+  };
+
+  const savingTips: Record<string, string> = {
+    'Food & Dining': 'Try meal prepping on weekends to cut dining out costs by up to 40%.',
+    'Transport': 'Consider carpooling or public transport to save on fuel and parking.',
+    'Shopping': 'Use the 48-hour rule: wait 2 days before non-essential purchases.',
+    'Bills & Utilities': 'Compare utility plans and switch to energy-saving appliances.',
+    'Entertainment': 'Look for free local events or share streaming subscriptions.',
+    'Health': 'Compare pharmacy prices and ask for generic medications.',
+    'Education': 'Check for free online courses on Coursera/YouTube before paying.',
+    'Rent & Housing': 'Negotiate rent at renewal time or consider a roommate.',
+    'Subscriptions': 'Audit subscriptions monthly - cancel what you haven\'t used in 30 days.',
+    'Personal Care': 'Try DIY grooming or look for salon deals on apps.',
+    'Groceries': 'Buy in bulk, use seasonal produce, and plan meals around sales.',
+  };
+
+  let dailyTrendChart: Chart | null = null;
+
+  function getFilteredExpenses(expenses: Expense[], period: string): Expense[] {
+    const now = new Date();
+    return expenses.filter((e) => {
+      const d = new Date(e.date);
+      if (period === 'month') {
+        return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+      } else if (period === 'last') {
+        const lm = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        return d.getMonth() === lm.getMonth() && d.getFullYear() === lm.getFullYear();
+      } else {
+        const threeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 2, 1);
+        return d >= threeMonthsAgo && d <= now;
+      }
+    });
+  }
+
+  function getDaysInPeriod(period: string): number {
+    const now = new Date();
+    if (period === 'month') {
+      return new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+    } else if (period === 'last') {
+      return new Date(now.getFullYear(), now.getMonth(), 0).getDate();
+    }
+    return 90;
+  }
+
+  function computeScore(
+    expenses: Expense[],
+    budgets: Budget[],
+    settings: Settings,
+    periodExpenses: Expense[]
+  ): { total: number; budget: number; savings: number; habits: number } {
+    const monthExpenses = periodExpenses.filter((e) => e.type === 'expense');
+    const monthIncome = periodExpenses.filter((e) => e.type === 'income');
+    const totalExpense = monthExpenses.reduce((s, e) => s + e.amount, 0);
+    const totalIncome = monthIncome.reduce((s, e) => s + e.amount, 0);
+    const income = settings.monthlyIncome || totalIncome || 1;
+
+    // Savings score (0-35): how much you save
+    let savingsScore = 20;
+    const ratio = totalExpense / income;
+    if (ratio < 0.3) savingsScore = 35;
+    else if (ratio < 0.5) savingsScore = 30;
+    else if (ratio < 0.7) savingsScore = 22;
+    else if (ratio < 0.85) savingsScore = 15;
+    else if (ratio < 1) savingsScore = 8;
+    else savingsScore = 2;
+
+    // Budget score (0-35): how well you stick to budgets
+    let budgetScore = 18;
+    if (budgets.length > 0) {
+      let withinBudget = 0;
+      budgets.forEach((b) => {
+        const catSpent = monthExpenses
+          .filter((e) => e.category === b.category)
+          .reduce((s, e) => s + e.amount, 0);
+        if (catSpent <= b.limit) withinBudget++;
+      });
+      budgetScore = Math.round((withinBudget / budgets.length) * 35);
+    }
+
+    // Habits score (0-30): consistency, variety, no spikes
+    let habitsScore = 15;
+    const uniqueDays = new Set(monthExpenses.map((e) => new Date(e.date).toDateString())).size;
+    if (uniqueDays > 0) {
+      // Consistency: spread over many days is better (means planned spending)
+      const daysInMonth = getDaysInPeriod('month');
+      const spreadRatio = uniqueDays / daysInMonth;
+      if (spreadRatio > 0.7) habitsScore = 10; // spending almost every day
+      else if (spreadRatio > 0.4) habitsScore = 20;
+      else habitsScore = 25; // concentrated, intentional spending
+
+      // Category diversity penalty (over-reliance on one category)
+      const catTotals: Record<string, number> = {};
+      monthExpenses.forEach((e) => { catTotals[e.category] = (catTotals[e.category] || 0) + e.amount; });
+      const cats = Object.values(catTotals);
+      if (cats.length > 0) {
+        const maxCat = Math.max(...cats);
+        if (maxCat / totalExpense > 0.6) habitsScore -= 5;
+      }
+    }
+    habitsScore = Math.max(0, Math.min(30, habitsScore));
+
+    const total = Math.max(0, Math.min(100, savingsScore + budgetScore + habitsScore));
+    return { total, budget: budgetScore, savings: savingsScore, habits: habitsScore };
+  }
+
+  function generateInsights(
+    allExpenses: Expense[],
+    periodExpenses: Expense[],
+    budgets: Budget[],
+    settings: Settings,
+    period: string
+  ): Insight[] {
+    const insights: Insight[] = [];
+    const monthExpenses = periodExpenses.filter((e) => e.type === 'expense');
+    const monthIncome = periodExpenses.filter((e) => e.type === 'income');
+    const totalExpense = monthExpenses.reduce((s, e) => s + e.amount, 0);
+    const totalIncome = monthIncome.reduce((s, e) => s + e.amount, 0);
+    const income = settings.monthlyIncome || totalIncome;
+
+    if (monthExpenses.length === 0) {
+      insights.push({
+        icon: '👋',
+        title: 'No data for this period',
+        desc: 'Start adding expenses to get personalized AI insights about your spending patterns.',
+        type: 'tip',
+      });
+      return insights;
+    }
+
+    // Category totals
+    const catTotals: Record<string, number> = {};
+    monthExpenses.forEach((e) => { catTotals[e.category] = (catTotals[e.category] || 0) + e.amount; });
+    const sortedCats = Object.entries(catTotals).sort((a, b) => b[1] - a[1]);
+
+    // ---- 1. Month-over-month comparison ----
+    if (period === 'month') {
+      const now = new Date();
+      const lastMonthExpenses = allExpenses.filter((e) => {
+        const d = new Date(e.date);
+        const lm = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        return e.type === 'expense' && d.getMonth() === lm.getMonth() && d.getFullYear() === lm.getFullYear();
+      });
+      const lastTotal = lastMonthExpenses.reduce((s, e) => s + e.amount, 0);
+      if (lastTotal > 0) {
+        const change = ((totalExpense - lastTotal) / lastTotal) * 100;
+        if (change > 15) {
+          insights.push({
+            icon: '📈',
+            title: `Spending up ${Math.round(change)}% vs last month`,
+            desc: `You've spent ${formatINR(totalExpense)} this month vs ${formatINR(lastTotal)} last month. Review recent purchases for areas to cut back.`,
+            type: 'warning',
+          });
+        } else if (change < -10) {
+          insights.push({
+            icon: '🎉',
+            title: `Spending down ${Math.abs(Math.round(change))}% vs last month`,
+            desc: `Great job! You've spent ${formatINR(totalExpense)} this month vs ${formatINR(lastTotal)} last month. Keep it up!`,
+            type: 'achievement',
+          });
+        } else {
+          insights.push({
+            icon: '📊',
+            title: 'Spending is steady',
+            desc: `You've spent ${formatINR(totalExpense)} this month, similar to ${formatINR(lastTotal)} last month.`,
+            type: 'trend',
+          });
+        }
+
+        // Category spikes
+        const lastCatTotals: Record<string, number> = {};
+        lastMonthExpenses.forEach((e) => { lastCatTotals[e.category] = (lastCatTotals[e.category] || 0) + e.amount; });
+        for (const [cat, amt] of sortedCats) {
+          const lastAmt = lastCatTotals[cat] || 0;
+          if (lastAmt > 0 && amt > lastAmt * 1.5 && amt > 500) {
+            insights.push({
+              icon: '🔺',
+              title: `${cat} spike detected`,
+              desc: `${cat} jumped from ${formatINR(lastAmt)} to ${formatINR(amt)} (${Math.round(((amt - lastAmt) / lastAmt) * 100)}% increase). Check if this is a one-time expense.`,
+              type: 'warning',
+            });
+            break;
+          }
+        }
+      }
+    }
+
+    // ---- 2. Budget alerts ----
+    budgets.forEach((b) => {
+      const catSpent = monthExpenses
+        .filter((e) => e.category === b.category)
+        .reduce((s, e) => s + e.amount, 0);
+      const pct = Math.round((catSpent / b.limit) * 100);
+      if (pct >= 100) {
+        insights.push({
+          icon: '🚨',
+          title: `${b.category} budget exceeded!`,
+          desc: `You've spent ${formatINR(catSpent)} of your ${formatINR(b.limit)} budget (${pct}%). Try to avoid further spending in this category.`,
+          type: 'warning',
+        });
+      } else if (pct >= 80) {
+        insights.push({
+          icon: '⚠️',
+          title: `${b.category} budget at ${pct}%`,
+          desc: `You've used ${formatINR(catSpent)} of your ${formatINR(b.limit)} budget. Only ${formatINR(b.limit - catSpent)} remaining.`,
+          type: 'warning',
+        });
+      }
+    });
+
+    // ---- 3. Top spending categories ----
+    if (sortedCats.length > 0) {
+      const top = sortedCats[0];
+      const pctOfTotal = Math.round((top[1] / totalExpense) * 100);
+      insights.push({
+        icon: catIcons[top[0]] || '🏷️',
+        title: `${top[0]} is your #1 expense`,
+        desc: `${formatINR(top[1])} spent (${pctOfTotal}% of total). ${pctOfTotal > 40 ? 'This category dominates your spending - consider setting a budget.' : 'Spending is reasonably distributed.'}`,
+        type: 'trend',
+      });
+    }
+
+    // ---- 4. Income vs expense ratio ----
+    if (income > 0) {
+      const ratio = Math.round((totalExpense / income) * 100);
+      if (ratio > 100) {
+        insights.push({
+          icon: '🔴',
+          title: `Spending exceeds income by ${ratio - 100}%`,
+          desc: `You're spending ${formatINR(totalExpense)} against ${formatINR(income)} income. This is unsustainable - cut non-essentials immediately.`,
+          type: 'warning',
+        });
+      } else if (ratio > 80) {
+        insights.push({
+          icon: '🟡',
+          title: `${ratio}% of income spent`,
+          desc: `You're using ${formatINR(totalExpense)} of ${formatINR(income)}. Aim to keep this under 70% for healthy savings.`,
+          type: 'warning',
+        });
+      } else if (ratio < 50) {
+        insights.push({
+          icon: '💚',
+          title: `Excellent! Only ${ratio}% of income spent`,
+          desc: `You're saving over half your income (${formatINR(income - totalExpense)}). Consider investing the surplus.`,
+          type: 'achievement',
+        });
+      }
+    }
+
+    // ---- 5. Subscription tracking ----
+    const recurring = monthExpenses.filter((e) => e.isRecurring || e.category === 'Subscriptions');
+    if (recurring.length > 0) {
+      const recurringTotal = recurring.reduce((s, e) => s + e.amount, 0);
+      insights.push({
+        icon: '🔄',
+        title: `${formatINR(recurringTotal)} in recurring expenses`,
+        desc: `You have ${recurring.length} recurring charge${recurring.length > 1 ? 's' : ''}. Review these periodically to cancel unused subscriptions.`,
+        type: 'suggestion',
+      });
+    }
+
+    // ---- 6. Weekend vs weekday spending ----
+    const weekdayExp = monthExpenses.filter((e) => {
+      const day = new Date(e.date).getDay();
+      return day > 0 && day < 6;
+    });
+    const weekendExp = monthExpenses.filter((e) => {
+      const day = new Date(e.date).getDay();
+      return day === 0 || day === 6;
+    });
+    const wdTotal = weekdayExp.reduce((s, e) => s + e.amount, 0);
+    const weTotal = weekendExp.reduce((s, e) => s + e.amount, 0);
+    const wdAvg = weekdayExp.length > 0 ? wdTotal / 5 : 0;
+    const weAvg = weekendExp.length > 0 ? weTotal / 2 : 0;
+    if (wdAvg > 0 && weAvg > 0) {
+      if (weAvg > wdAvg * 1.5) {
+        insights.push({
+          icon: '🗓️',
+          title: 'Weekend spending is high',
+          desc: `You spend ~${formatINR(Math.round(weAvg))}/day on weekends vs ~${formatINR(Math.round(wdAvg))}/day on weekdays. Plan weekend activities that cost less.`,
+          type: 'tip',
+        });
+      } else if (wdAvg > weAvg * 1.5) {
+        insights.push({
+          icon: '📅',
+          title: 'Weekday spending is higher',
+          desc: `Weekday average: ${formatINR(Math.round(wdAvg))}/day vs weekend: ${formatINR(Math.round(weAvg))}/day. Check daily commute and lunch expenses.`,
+          type: 'tip',
+        });
+      }
+    }
+
+    // ---- 7. No-spend streak ----
+    if (period === 'month') {
+      const now = new Date();
+      const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+      const currentDay = now.getDate();
+      const spendDays = new Set(monthExpenses.map((e) => new Date(e.date).getDate()));
+      let streak = 0;
+      let maxStreak = 0;
+      for (let d = 1; d <= currentDay; d++) {
+        if (!spendDays.has(d)) {
+          streak++;
+          maxStreak = Math.max(maxStreak, streak);
+        } else {
+          streak = 0;
+        }
+      }
+      if (maxStreak >= 3) {
+        insights.push({
+          icon: '🔥',
+          title: `${maxStreak}-day no-spend streak!`,
+          desc: `Your longest no-spend streak this month is ${maxStreak} days. ${maxStreak >= 5 ? 'Amazing discipline!' : 'Try to beat your record!'}`,
+          type: 'achievement',
+        });
+      }
+      // Current streak (from today backwards)
+      let currentStreak = 0;
+      for (let d = currentDay; d >= 1; d--) {
+        if (!spendDays.has(d)) currentStreak++;
+        else break;
+      }
+      if (currentStreak >= 2) {
+        insights.push({
+          icon: '✨',
+          title: `${currentStreak}-day streak going!`,
+          desc: `You haven't spent anything in ${currentStreak} days. Keep the momentum!`,
+          type: 'achievement',
+        });
+      }
+    }
+
+    // ---- 8. Small purchases adding up ----
+    const smallPurchases = monthExpenses.filter((e) => e.amount < 100);
+    if (smallPurchases.length >= 5) {
+      const smallTotal = smallPurchases.reduce((s, e) => s + e.amount, 0);
+      insights.push({
+        icon: '💸',
+        title: `${smallPurchases.length} small purchases = ${formatINR(smallTotal)}`,
+        desc: `Those under-₹100 purchases add up! That's ${Math.round((smallTotal / totalExpense) * 100)}% of your total spending. Track these carefully.`,
+        type: 'tip',
+      });
+    }
+
+    // ---- 9. Saving tips based on top categories ----
+    for (const [cat] of sortedCats.slice(0, 2)) {
+      if (savingTips[cat]) {
+        insights.push({
+          icon: '💡',
+          title: `Save on ${cat}`,
+          desc: savingTips[cat],
+          type: 'suggestion',
+        });
+      }
+    }
+
+    // ---- 10. Payment method insight ----
+    const paymentTotals: Record<string, number> = {};
+    monthExpenses.forEach((e) => {
+      const pm = e.paymentMethod || 'Unknown';
+      paymentTotals[pm] = (paymentTotals[pm] || 0) + e.amount;
+    });
+    const topPayment = Object.entries(paymentTotals).sort((a, b) => b[1] - a[1])[0];
+    if (topPayment && Object.keys(paymentTotals).length > 1) {
+      insights.push({
+        icon: '💳',
+        title: `Most used: ${topPayment[0]}`,
+        desc: `${formatINR(topPayment[1])} spent via ${topPayment[0]}. Using cash for discretionary spending can help you spend less.`,
+        type: 'tip',
+      });
+    }
+
+    return insights;
+  }
+
+  function renderInsights(insights: Insight[]) {
+    const container = document.getElementById('insights-container');
+    const countEl = document.getElementById('insights-count');
+    if (!container) return;
+
+    if (countEl) countEl.textContent = `${insights.length} tip${insights.length !== 1 ? 's' : ''}`;
+
+    const borderMap: Record<string, string> = {
+      warning: 'border-l-4 border-l-amber-500',
+      tip: 'border-l-4 border-l-indigo-500',
+      achievement: 'border-l-4 border-l-emerald-500',
+      trend: 'border-l-4 border-l-blue-500',
+      suggestion: 'border-l-4 border-l-purple-500',
+    };
+
+    const bgMap: Record<string, string> = {
+      warning: 'bg-amber-50 dark:bg-amber-950/20',
+      tip: 'bg-indigo-50 dark:bg-indigo-950/20',
+      achievement: 'bg-emerald-50 dark:bg-emerald-950/20',
+      trend: 'bg-blue-50 dark:bg-blue-950/20',
+      suggestion: 'bg-purple-50 dark:bg-purple-950/20',
+    };
+
+    const badgeMap: Record<string, string> = {
+      warning: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
+      tip: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300',
+      achievement: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
+      trend: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
+      suggestion: 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300',
+    };
+
+    const typeLabels: Record<string, string> = {
+      warning: 'Alert',
+      tip: 'Tip',
+      achievement: 'Win',
+      trend: 'Trend',
+      suggestion: 'Idea',
+    };
+
+    container.innerHTML = insights
+      .map(
+        (i, idx) => `
+      <div class="card ${borderMap[i.type] || ''} ${bgMap[i.type] || ''}" style="padding: 1rem; animation: fadeInUp 0.3s ease-out ${idx * 0.06}s both;">
+        <div class="flex items-start gap-3">
+          <span class="text-2xl flex-shrink-0 mt-0.5">${i.icon}</span>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 mb-1">
+              <p class="font-semibold text-sm">${i.title}</p>
+              <span class="badge text-[10px] ${badgeMap[i.type] || ''}">${typeLabels[i.type] || ''}</span>
+            </div>
+            <p class="text-xs leading-relaxed" style="color: var(--color-text-muted);">${i.desc}</p>
+          </div>
+        </div>
+      </div>
+    `
+      )
+      .join('');
+  }
+
+  function renderDailyTrend(periodExpenses: Expense[], period: string) {
+    const canvas = document.getElementById('daily-trend-chart') as HTMLCanvasElement;
+    const noData = document.getElementById('trend-no-data');
+    const avgEl = document.getElementById('trend-avg');
+    const expenses = periodExpenses.filter((e) => e.type === 'expense');
+
+    if (expenses.length === 0) {
+      if (canvas) canvas.style.display = 'none';
+      if (noData) noData.classList.remove('hidden');
+      return;
+    }
+
+    if (noData) noData.classList.add('hidden');
+    if (canvas) canvas.style.display = 'block';
+
+    // Build daily totals
+    const dailyTotals: Record<string, number> = {};
+    expenses.forEach((e) => {
+      const key = new Date(e.date).toISOString().slice(0, 10);
+      dailyTotals[key] = (dailyTotals[key] || 0) + e.amount;
+    });
+
+    const now = new Date();
+    let startDate: Date;
+    if (period === 'month') {
+      startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+    } else if (period === 'last') {
+      startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    } else {
+      startDate = new Date(now.getFullYear(), now.getMonth() - 2, 1);
+    }
+
+    const endDate = period === 'last'
+      ? new Date(now.getFullYear(), now.getMonth(), 0)
+      : now;
+
+    const labels: string[] = [];
+    const data: number[] = [];
+    const d = new Date(startDate);
+    while (d <= endDate) {
+      const key = d.toISOString().slice(0, 10);
+      const dayLabel = d.getDate().toString();
+      labels.push(dayLabel);
+      data.push(dailyTotals[key] || 0);
+      d.setDate(d.getDate() + 1);
+    }
+
+    const avg = data.reduce((s, v) => s + v, 0) / (data.filter((v) => v > 0).length || 1);
+    if (avgEl) avgEl.textContent = `Avg: ${formatINR(Math.round(avg))}/day`;
+
+    if (dailyTrendChart) {
+      dailyTrendChart.destroy();
+      dailyTrendChart = null;
+    }
+
+    if (canvas) {
+      const isDark = document.documentElement.classList.contains('dark');
+      const gridColor = isDark ? 'rgba(148,163,184,0.1)' : 'rgba(0,0,0,0.06)';
+      const textColor = isDark ? '#94a3b8' : '#64748b';
+
+      dailyTrendChart = new Chart(canvas, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [
+            {
+              label: 'Daily Spending',
+              data,
+              borderColor: '#6366f1',
+              backgroundColor: 'rgba(99,102,241,0.1)',
+              borderWidth: 2,
+              fill: true,
+              tension: 0.35,
+              pointRadius: data.length > 31 ? 0 : 3,
+              pointHoverRadius: 6,
+              pointBackgroundColor: '#6366f1',
+            },
+            {
+              label: 'Average',
+              data: data.map(() => Math.round(avg)),
+              borderColor: isDark ? 'rgba(239,68,68,0.4)' : 'rgba(239,68,68,0.35)',
+              borderWidth: 1.5,
+              borderDash: [6, 4],
+              pointRadius: 0,
+              fill: false,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { font: { size: 10 }, color: textColor, maxTicksLimit: 10 },
+            },
+            y: {
+              grid: { color: gridColor },
+              ticks: {
+                font: { size: 10 },
+                color: textColor,
+                callback: (value: any) => '\u20B9' + Number(value).toLocaleString('en-IN'),
+              },
+              beginAtZero: true,
+            },
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                title: (items: any) => `Day ${items[0].label}`,
+                label: (ctx: any) =>
+                  ctx.datasetIndex === 0
+                    ? `Spent: ${formatINR(ctx.raw)}`
+                    : `Avg: ${formatINR(ctx.raw)}`,
+              },
+            },
+          },
+        },
+      });
+    }
+  }
+
+  function renderHeatmap(periodExpenses: Expense[]) {
+    const expenses = periodExpenses.filter((e) => e.type === 'expense');
+    const dowTotals = [0, 0, 0, 0, 0, 0, 0];
+    const dowCounts = [0, 0, 0, 0, 0, 0, 0];
+
+    expenses.forEach((e) => {
+      const day = new Date(e.date).getDay();
+      dowTotals[day] += e.amount;
+      dowCounts[day]++;
+    });
+
+    const maxTotal = Math.max(...dowTotals, 1);
+    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+    const heatColors = [
+      { bg: 'bg-emerald-100 dark:bg-emerald-900/30', text: 'text-emerald-700 dark:text-emerald-300' },
+      { bg: 'bg-emerald-200 dark:bg-emerald-800/40', text: 'text-emerald-800 dark:text-emerald-200' },
+      { bg: 'bg-amber-200 dark:bg-amber-800/40', text: 'text-amber-800 dark:text-amber-200' },
+      { bg: 'bg-red-200 dark:bg-red-800/40', text: 'text-red-800 dark:text-red-200' },
+      { bg: 'bg-red-400 dark:bg-red-700/60', text: 'text-white dark:text-red-100' },
+    ];
+
+    for (let i = 0; i < 7; i++) {
+      const cell = document.querySelector(`[data-day="${i}"]`) as HTMLElement;
+      if (!cell) continue;
+      const total = dowTotals[i];
+      const intensity = total / maxTotal;
+      let level = 0;
+      if (intensity > 0.8) level = 4;
+      else if (intensity > 0.6) level = 3;
+      else if (intensity > 0.35) level = 2;
+      else if (intensity > 0.1) level = 1;
+
+      const hc = heatColors[level];
+      cell.className = `aspect-square rounded-lg flex items-center justify-center transition-all ${hc.bg}`;
+
+      const span = cell.querySelector('span');
+      if (span) {
+        span.className = `text-[10px] font-bold ${hc.text}`;
+        span.textContent = total > 0 ? formatINR(Math.round(total)) : '₹0';
+      }
+    }
+
+    // Summary
+    const summaryEl = document.getElementById('dow-summary');
+    if (summaryEl) {
+      const maxDay = dowTotals.indexOf(Math.max(...dowTotals));
+      const minDay = dowTotals.indexOf(Math.min(...dowTotals.filter((t, i) => dowCounts[i] > 0)));
+      if (expenses.length > 0) {
+        summaryEl.textContent = `${dayNames[maxDay]} is your highest spending day, ${dayNames[minDay]} is the lowest.`;
+      } else {
+        summaryEl.textContent = 'Add expenses to see your weekly pattern.';
+      }
+    }
+  }
+
+  function renderCategoryBreakdown(periodExpenses: Expense[]) {
+    const container = document.getElementById('category-breakdown');
+    if (!container) return;
+
+    const expenses = periodExpenses.filter((e) => e.type === 'expense');
+    const totalExpense = expenses.reduce((s, e) => s + e.amount, 0);
+
+    if (expenses.length === 0) return;
+
+    const catTotals: Record<string, { total: number; count: number }> = {};
+    expenses.forEach((e) => {
+      if (!catTotals[e.category]) catTotals[e.category] = { total: 0, count: 0 };
+      catTotals[e.category].total += e.amount;
+      catTotals[e.category].count++;
+    });
+
+    const sorted = Object.entries(catTotals).sort((a, b) => b[1].total - a[1].total);
+
+    container.innerHTML = sorted
+      .map(([cat, data], idx) => {
+        const pct = Math.round((data.total / totalExpense) * 100);
+        const color = catColors[cat] || '#64748b';
+        const icon = catIcons[cat] || '📌';
+        const avgPerTx = Math.round(data.total / data.count);
+
+        return `
+        <div class="card" style="padding: 1rem; animation: fadeInUp 0.3s ease-out ${idx * 0.05}s both;">
+          <div class="flex items-center gap-3 mb-2">
+            <span class="text-xl">${icon}</span>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center justify-between">
+                <p class="font-semibold text-sm">${cat}</p>
+                <p class="font-bold text-sm">${formatINR(data.total)}</p>
+              </div>
+              <div class="flex items-center justify-between mt-0.5">
+                <p class="text-[11px]" style="color: var(--color-text-muted);">${data.count} transaction${data.count > 1 ? 's' : ''} &middot; avg ${formatINR(avgPerTx)}</p>
+                <span class="badge text-[10px]" style="background: ${color}20; color: ${color};">${pct}%</span>
+              </div>
+            </div>
+          </div>
+          <div class="w-full rounded-full h-2 overflow-hidden" style="background: var(--color-surface-alt);">
+            <div class="h-2 rounded-full transition-all duration-700" style="width: ${pct}%; background: ${color};"></div>
+          </div>
+        </div>
+      `;
+      })
+      .join('');
+  }
+
+  function renderDealSearch(periodExpenses: Expense[]) {
+    const container = document.getElementById('deal-search-container');
+    if (!container) return;
+
+    const expenses = periodExpenses.filter((e) => e.type === 'expense');
+    if (expenses.length === 0) return;
+
+    const catTotals: Record<string, number> = {};
+    expenses.forEach((e) => { catTotals[e.category] = (catTotals[e.category] || 0) + e.amount; });
+    const topCats = Object.entries(catTotals)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5);
+
+    if (topCats.length === 0) return;
+
+    container.innerHTML = topCats
+      .map(([cat, amount], idx) => {
+        const icon = catIcons[cat] || '📌';
+        const searchQuery = encodeURIComponent(`save money on ${cat.toLowerCase()} india tips`);
+        const url = `https://www.google.com/search?q=${searchQuery}`;
+        return `
+        <div class="card flex items-center gap-3" style="padding: 0.75rem; animation: fadeInUp 0.3s ease-out ${idx * 0.05}s both;">
+          <span class="text-xl">${icon}</span>
+          <div class="flex-1 min-w-0">
+            <p class="font-medium text-sm">${cat}</p>
+            <p class="text-xs" style="color: var(--color-text-muted);">${formatINR(amount)} spent</p>
+          </div>
+          <a href="${url}" target="_blank" rel="noopener noreferrer" class="btn-secondary text-xs whitespace-nowrap flex items-center gap-1" style="padding: 0.375rem 0.75rem;">
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            Find Deals
+          </a>
+        </div>
+      `;
+      })
+      .join('');
+  }
+
+  function renderScore(scoreData: { total: number; budget: number; savings: number; habits: number }) {
+    const scoreRing = document.getElementById('score-ring');
+    const scoreValue = document.getElementById('score-value');
+    const scoreLabel = document.getElementById('score-label');
+    const scoreBudget = document.getElementById('score-budget');
+    const scoreSavings = document.getElementById('score-savings');
+    const scoreHabits = document.getElementById('score-habits');
+
+    if (scoreRing && scoreValue && scoreLabel) {
+      const circumference = 263.9;
+      const offset = circumference - (circumference * scoreData.total) / 100;
+      scoreRing.style.strokeDashoffset = String(offset);
+
+      // Animate the number
+      let current = 0;
+      const target = scoreData.total;
+      const increment = Math.ceil(target / 40);
+      const timer = setInterval(() => {
+        current = Math.min(current + increment, target);
+        scoreValue.textContent = String(current);
+        if (current >= target) clearInterval(timer);
+      }, 25);
+
+      let label = 'Excellent';
+      let color = '#10b981';
+      if (scoreData.total < 30) { label = 'Needs Work'; color = '#ef4444'; }
+      else if (scoreData.total < 50) { label = 'Fair'; color = '#f59e0b'; }
+      else if (scoreData.total < 70) { label = 'Good'; color = '#3b82f6'; }
+      else if (scoreData.total < 85) { label = 'Great'; color = '#6366f1'; }
+      scoreLabel.textContent = label;
+      scoreLabel.style.color = color;
+      scoreRing.style.stroke = color;
+    }
+
+    if (scoreBudget) scoreBudget.textContent = `${scoreData.budget}/35`;
+    if (scoreSavings) scoreSavings.textContent = `${scoreData.savings}/35`;
+    if (scoreHabits) scoreHabits.textContent = `${scoreData.habits}/30`;
+  }
+
+  function loadInsights() {
+    const allExpenses: Expense[] = JSON.parse(localStorage.getItem('kt_expenses') || '[]');
+    const budgets: Budget[] = JSON.parse(localStorage.getItem('kt_budgets') || '[]');
+    const settings: Settings = JSON.parse(localStorage.getItem('kt_settings') || '{}');
+    const periodSelect = document.getElementById('insight-period') as HTMLSelectElement;
+    const period = periodSelect?.value || 'month';
+
+    const periodExpenses = getFilteredExpenses(allExpenses, period);
+
+    // Render score
+    const scoreData = computeScore(allExpenses, budgets, settings, periodExpenses);
+    renderScore(scoreData);
+
+    // Generate and render insights
+    const insights = generateInsights(allExpenses, periodExpenses, budgets, settings, period);
+    renderInsights(insights);
+
+    // Render charts
+    renderDailyTrend(periodExpenses, period);
+    renderHeatmap(periodExpenses);
+
+    // Category breakdown
+    renderCategoryBreakdown(periodExpenses);
+
+    // Deal search
+    renderDealSearch(periodExpenses);
+  }
+
+  function init() {
+    loadInsights();
+
+    const periodSelect = document.getElementById('insight-period');
+    if (periodSelect) {
+      periodSelect.addEventListener('change', loadInsights);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', init);
+  document.addEventListener('astro:page-load', init);
+</script>

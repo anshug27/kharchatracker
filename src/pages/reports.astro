@@ -1,0 +1,732 @@
+---
+import Layout from '../layouts/Layout.astro';
+import AdUnit from '../components/AdUnit.astro';
+---
+<Layout title="Monthly Reports - KharchaTracker" activeNav="insights">
+
+  <!-- Page Title -->
+  <div class="mb-4">
+    <h1 class="text-xl font-bold" style="color: var(--color-text);">📊 Monthly Reports</h1>
+    <p class="text-sm" style="color: var(--color-text-muted);">Detailed analytics & spending insights</p>
+  </div>
+
+  <!-- Month Selector -->
+  <div class="card mb-4 flex items-center justify-between">
+    <button id="prev-month" class="btn-secondary btn-sm" aria-label="Previous month">
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+    </button>
+    <div class="text-center">
+      <p id="current-month" class="font-semibold" style="color: var(--color-text);">January 2025</p>
+      <p id="month-range" class="text-xs" style="color: var(--color-text-muted);">1 Jan – 31 Jan</p>
+    </div>
+    <button id="next-month" class="btn-secondary btn-sm" aria-label="Next month">
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+    </button>
+  </div>
+
+  <!-- Monthly Summary Cards -->
+  <div class="grid grid-cols-2 gap-3 mb-4">
+    <div class="stat-card">
+      <p class="stat-value" style="color: #10b981;" id="rpt-income">₹0</p>
+      <p class="stat-label">Total Income</p>
+    </div>
+    <div class="stat-card">
+      <p class="stat-value" style="color: #ef4444;" id="rpt-expense">₹0</p>
+      <p class="stat-label">Total Expense</p>
+    </div>
+    <div class="stat-card">
+      <p class="stat-value" style="color: #6366f1;" id="rpt-savings">₹0</p>
+      <p class="stat-label">Savings</p>
+    </div>
+    <div class="stat-card">
+      <p class="stat-value" style="color: #8b5cf6;" id="rpt-savings-rate">0%</p>
+      <p class="stat-label">Savings Rate</p>
+    </div>
+  </div>
+
+  <!-- Income vs Expense Bar Chart -->
+  <div class="card mb-4">
+    <div class="section-header">
+      <h2>Income vs Expense</h2>
+      <span class="text-xs" style="color: var(--color-text-muted);">Last 6 months</span>
+    </div>
+    <div class="chart-container" style="height: 240px;">
+      <canvas id="income-expense-chart"></canvas>
+    </div>
+    <div id="ie-empty" class="hidden empty-state">
+      <div class="empty-icon">📊</div>
+      <p>No data for the last 6 months</p>
+    </div>
+  </div>
+
+  <AdUnit />
+
+  <!-- Category Pie Chart -->
+  <div class="card mb-4">
+    <div class="section-header">
+      <h2>Expense Breakdown</h2>
+    </div>
+    <div class="chart-container" style="height: 260px;">
+      <canvas id="category-pie-chart"></canvas>
+    </div>
+    <div id="cat-empty" class="hidden empty-state">
+      <div class="empty-icon">🍩</div>
+      <p>No expenses this month</p>
+    </div>
+  </div>
+
+  <!-- Top 5 Expenses -->
+  <div class="mb-4">
+    <div class="section-header">
+      <h2>Top 5 Expenses</h2>
+    </div>
+    <div id="top5-list" class="space-y-2">
+      <div class="empty-state">
+        <div class="empty-icon">💸</div>
+        <p>No expenses recorded this month</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Daily Spending Line Chart -->
+  <div class="card mb-4">
+    <div class="section-header">
+      <h2>Daily Spending Trend</h2>
+    </div>
+    <div class="chart-container" style="height: 220px;">
+      <canvas id="daily-line-chart"></canvas>
+    </div>
+    <div id="daily-empty" class="hidden empty-state">
+      <div class="empty-icon">📈</div>
+      <p>No spending data to show</p>
+    </div>
+  </div>
+
+  <AdUnit />
+
+  <!-- Payment Method Breakdown -->
+  <div class="card mb-4">
+    <div class="section-header">
+      <h2>Payment Methods</h2>
+    </div>
+    <div class="chart-container" style="height: 240px;">
+      <canvas id="payment-pie-chart"></canvas>
+    </div>
+    <div id="pay-empty" class="hidden empty-state">
+      <div class="empty-icon">💳</div>
+      <p>No payment data available</p>
+    </div>
+  </div>
+
+  <!-- Category Comparison Table -->
+  <div class="card mb-4">
+    <div class="section-header">
+      <h2>Category Comparison</h2>
+      <span class="text-xs" style="color: var(--color-text-muted);">vs last month</span>
+    </div>
+    <div id="cat-compare-table" class="overflow-x-auto">
+      <div class="empty-state">
+        <div class="empty-icon">📋</div>
+        <p>No data to compare</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Spending Calendar -->
+  <div class="card mb-4">
+    <div class="section-header">
+      <h2>Spending Calendar</h2>
+    </div>
+    <div id="spending-calendar" class="mb-2">
+      <!-- Calendar grid rendered by JS -->
+    </div>
+    <div class="flex items-center justify-center gap-2 mt-2">
+      <span class="text-xs" style="color: var(--color-text-muted);">Less</span>
+      <div class="flex gap-1">
+        <div class="w-4 h-4 rounded" style="background: rgba(99,102,241,0.08); border: 1px solid var(--color-border);"></div>
+        <div class="w-4 h-4 rounded" style="background: rgba(99,102,241,0.2);"></div>
+        <div class="w-4 h-4 rounded" style="background: rgba(99,102,241,0.4);"></div>
+        <div class="w-4 h-4 rounded" style="background: rgba(99,102,241,0.65);"></div>
+        <div class="w-4 h-4 rounded" style="background: rgba(99,102,241,0.9);"></div>
+      </div>
+      <span class="text-xs" style="color: var(--color-text-muted);">More</span>
+    </div>
+  </div>
+
+  <AdUnit />
+
+  <!-- Export Report Button -->
+  <div class="mb-6">
+    <button id="export-report" class="btn-primary w-full">
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+      Export Monthly Report
+    </button>
+  </div>
+
+</Layout>
+
+<script>
+  import Chart from 'chart.js/auto';
+
+  const CAT_ICONS: Record<string, string> = {
+    'Food & Dining': '🍔', 'Transport': '🚗', 'Shopping': '🛍️',
+    'Bills & Utilities': '💡', 'Entertainment': '🎬', 'Health': '🏥',
+    'Education': '📚', 'Rent & Housing': '🏠', 'Subscriptions': '📱',
+    'Personal Care': '💆', 'Investments': '📈', 'Other': '📌',
+    'Salary': '💼', 'Freelance': '💻', 'Business': '🏪',
+    'Investment Returns': '📈', 'Rental Income': '🏠', 'Gift': '🎁', 'Refund': '💰',
+  };
+
+  const CAT_COLORS: Record<string, string> = {
+    'Food & Dining': '#f59e0b', 'Transport': '#3b82f6', 'Shopping': '#ec4899',
+    'Bills & Utilities': '#8b5cf6', 'Entertainment': '#ef4444', 'Health': '#10b981',
+    'Education': '#6366f1', 'Rent & Housing': '#f97316', 'Subscriptions': '#14b8a6',
+    'Personal Care': '#d946ef', 'Investments': '#059669', 'Other': '#64748b',
+  };
+
+  const PAY_COLORS: Record<string, string> = {
+    'UPI': '#6366f1', 'Cash': '#10b981', 'Credit Card': '#ef4444',
+    'Debit Card': '#f59e0b', 'Net Banking': '#3b82f6', 'Wallet': '#8b5cf6',
+    'Other': '#64748b',
+  };
+
+  function formatINR(amount: number): string {
+    return '₹' + amount.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  }
+
+  let currentYear: number;
+  let currentMonth: number; // 0-indexed
+  let chartInstances: Chart[] = [];
+
+  function destroyCharts() {
+    chartInstances.forEach(c => c.destroy());
+    chartInstances = [];
+  }
+
+  function getMonthExpenses(expenses: any[], year: number, month: number) {
+    return expenses.filter((e: any) => {
+      const d = new Date(e.date);
+      return d.getFullYear() === year && d.getMonth() === month;
+    });
+  }
+
+  function getDaysInMonth(year: number, month: number): number {
+    return new Date(year, month + 1, 0).getDate();
+  }
+
+  function showToast(message: string, type: 'success' | 'error' = 'success') {
+    const existing = document.querySelector('.toast');
+    if (existing) existing.remove();
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+  }
+
+  function loadReports() {
+    destroyCharts();
+
+    const expenses: any[] = JSON.parse(localStorage.getItem('kt_expenses') || '[]');
+    const settings: any = JSON.parse(localStorage.getItem('kt_settings') || '{}');
+
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'];
+    const shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    // Update month selector display
+    const daysInMonth = getDaysInMonth(currentYear, currentMonth);
+    const monthLabel = document.getElementById('current-month');
+    const monthRange = document.getElementById('month-range');
+    if (monthLabel) monthLabel.textContent = `${monthNames[currentMonth]} ${currentYear}`;
+    if (monthRange) monthRange.textContent = `1 ${shortMonths[currentMonth]} – ${daysInMonth} ${shortMonths[currentMonth]}`;
+
+    // Filter data for current month
+    const monthData = getMonthExpenses(expenses, currentYear, currentMonth);
+    const monthExpenses = monthData.filter((e: any) => e.type === 'expense');
+    const monthIncomeItems = monthData.filter((e: any) => e.type === 'income');
+
+    const totalExpense = monthExpenses.reduce((s: number, e: any) => s + e.amount, 0);
+    const totalIncome = monthIncomeItems.reduce((s: number, e: any) => s + e.amount, 0);
+    const savings = totalIncome - totalExpense;
+    const savingsRate = totalIncome > 0 ? Math.round((savings / totalIncome) * 100) : 0;
+
+    // Summary cards
+    const incomeEl = document.getElementById('rpt-income');
+    const expenseEl = document.getElementById('rpt-expense');
+    const savingsEl = document.getElementById('rpt-savings');
+    const rateEl = document.getElementById('rpt-savings-rate');
+
+    if (incomeEl) incomeEl.textContent = formatINR(totalIncome);
+    if (expenseEl) expenseEl.textContent = formatINR(totalExpense);
+    if (savingsEl) {
+      savingsEl.textContent = (savings < 0 ? '-' : '') + formatINR(Math.abs(savings));
+      savingsEl.style.color = savings >= 0 ? '#6366f1' : '#ef4444';
+    }
+    if (rateEl) {
+      rateEl.textContent = savingsRate + '%';
+      rateEl.style.color = savingsRate >= 20 ? '#10b981' : savingsRate >= 0 ? '#8b5cf6' : '#ef4444';
+    }
+
+    // ===== Income vs Expense Bar Chart (last 6 months) =====
+    const ieCanvas = document.getElementById('income-expense-chart') as HTMLCanvasElement;
+    const ieEmpty = document.getElementById('ie-empty');
+    if (ieCanvas) {
+      const labels: string[] = [];
+      const incomeData: number[] = [];
+      const expenseData: number[] = [];
+      let hasData = false;
+
+      for (let i = 5; i >= 0; i--) {
+        let m = currentMonth - i;
+        let y = currentYear;
+        if (m < 0) { m += 12; y -= 1; }
+        labels.push(shortMonths[m]);
+        const mData = getMonthExpenses(expenses, y, m);
+        const inc = mData.filter((e: any) => e.type === 'income').reduce((s: number, e: any) => s + e.amount, 0);
+        const exp = mData.filter((e: any) => e.type === 'expense').reduce((s: number, e: any) => s + e.amount, 0);
+        incomeData.push(inc);
+        expenseData.push(exp);
+        if (inc > 0 || exp > 0) hasData = true;
+      }
+
+      if (!hasData) {
+        ieCanvas.style.display = 'none';
+        if (ieEmpty) ieEmpty.classList.remove('hidden');
+      } else {
+        ieCanvas.style.display = 'block';
+        if (ieEmpty) ieEmpty.classList.add('hidden');
+        const chart = new Chart(ieCanvas, {
+          type: 'bar',
+          data: {
+            labels,
+            datasets: [
+              { label: 'Income', data: incomeData, backgroundColor: '#10b981', borderRadius: 6, barPercentage: 0.4 },
+              { label: 'Expense', data: expenseData, backgroundColor: '#ef4444', borderRadius: 6, barPercentage: 0.4 },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: { grid: { display: false } },
+              y: {
+                beginAtZero: true,
+                ticks: { callback: (val: any) => '₹' + Number(val).toLocaleString('en-IN') },
+              },
+            },
+            plugins: {
+              legend: { position: 'bottom', labels: { boxWidth: 12, padding: 12, font: { size: 11 } } },
+              tooltip: { callbacks: { label: (ctx: any) => `${ctx.dataset.label}: ${formatINR(ctx.raw)}` } },
+            },
+          },
+        });
+        chartInstances.push(chart);
+      }
+    }
+
+    // ===== Category Doughnut Chart =====
+    const catCanvas = document.getElementById('category-pie-chart') as HTMLCanvasElement;
+    const catEmpty = document.getElementById('cat-empty');
+    const catTotals: Record<string, number> = {};
+    monthExpenses.forEach((e: any) => {
+      catTotals[e.category] = (catTotals[e.category] || 0) + e.amount;
+    });
+
+    if (catCanvas) {
+      if (Object.keys(catTotals).length === 0) {
+        catCanvas.style.display = 'none';
+        if (catEmpty) catEmpty.classList.remove('hidden');
+      } else {
+        catCanvas.style.display = 'block';
+        if (catEmpty) catEmpty.classList.add('hidden');
+        const sortedCats = Object.entries(catTotals).sort((a, b) => b[1] - a[1]);
+        const labels = sortedCats.map(c => c[0]);
+        const data = sortedCats.map(c => c[1]);
+        const colors = labels.map(l => CAT_COLORS[l] || '#64748b');
+
+        const chart = new Chart(catCanvas, {
+          type: 'doughnut',
+          data: {
+            labels,
+            datasets: [{ data, backgroundColor: colors, borderWidth: 0, hoverOffset: 8 }],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '60%',
+            plugins: {
+              legend: { position: 'bottom', labels: { boxWidth: 12, padding: 10, font: { size: 11 } } },
+              tooltip: {
+                callbacks: {
+                  label: (ctx: any) => {
+                    const pct = Math.round((ctx.raw / totalExpense) * 100);
+                    return `${ctx.label}: ${formatINR(ctx.raw)} (${pct}%)`;
+                  },
+                },
+              },
+            },
+          },
+        });
+        chartInstances.push(chart);
+      }
+    }
+
+    // ===== Top 5 Expenses =====
+    const top5Container = document.getElementById('top5-list');
+    if (top5Container) {
+      const sorted = [...monthExpenses].sort((a: any, b: any) => b.amount - a.amount).slice(0, 5);
+      if (sorted.length > 0) {
+        top5Container.innerHTML = sorted.map((e: any, idx: number) => {
+          const icon = CAT_ICONS[e.category] || '📌';
+          const d = new Date(e.date);
+          const dateStr = d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+          return `
+            <div class="txn-item">
+              <span class="txn-icon">${icon}</span>
+              <div class="txn-details">
+                <p class="txn-title">${e.description || e.category}</p>
+                <p class="txn-meta">${e.category} · ${dateStr}</p>
+              </div>
+              <span class="txn-amount expense">-${formatINR(e.amount)}</span>
+            </div>
+          `;
+        }).join('');
+      } else {
+        top5Container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">💸</div>
+            <p>No expenses recorded this month</p>
+          </div>
+        `;
+      }
+    }
+
+    // ===== Daily Spending Line Chart =====
+    const dailyCanvas = document.getElementById('daily-line-chart') as HTMLCanvasElement;
+    const dailyEmpty = document.getElementById('daily-empty');
+    if (dailyCanvas) {
+      const dailyTotals: number[] = new Array(daysInMonth).fill(0);
+      monthExpenses.forEach((e: any) => {
+        const d = new Date(e.date);
+        dailyTotals[d.getDate() - 1] += e.amount;
+      });
+      const hasDailyData = dailyTotals.some(v => v > 0);
+
+      if (!hasDailyData) {
+        dailyCanvas.style.display = 'none';
+        if (dailyEmpty) dailyEmpty.classList.remove('hidden');
+      } else {
+        dailyCanvas.style.display = 'block';
+        if (dailyEmpty) dailyEmpty.classList.add('hidden');
+        const labels = Array.from({ length: daysInMonth }, (_, i) => String(i + 1));
+
+        const chart = new Chart(dailyCanvas, {
+          type: 'line',
+          data: {
+            labels,
+            datasets: [{
+              label: 'Daily Spending',
+              data: dailyTotals,
+              borderColor: '#6366f1',
+              backgroundColor: 'rgba(99, 102, 241, 0.1)',
+              fill: true,
+              tension: 0.3,
+              pointRadius: 2,
+              pointHoverRadius: 5,
+              pointBackgroundColor: '#6366f1',
+              borderWidth: 2,
+            }],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: {
+                grid: { display: false },
+                ticks: {
+                  maxTicksLimit: 10,
+                  font: { size: 10 },
+                },
+              },
+              y: {
+                beginAtZero: true,
+                ticks: { callback: (val: any) => '₹' + Number(val).toLocaleString('en-IN') },
+              },
+            },
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  title: (items: any) => `Day ${items[0].label}`,
+                  label: (ctx: any) => formatINR(ctx.raw),
+                },
+              },
+            },
+          },
+        });
+        chartInstances.push(chart);
+      }
+    }
+
+    // ===== Payment Method Pie Chart =====
+    const payCanvas = document.getElementById('payment-pie-chart') as HTMLCanvasElement;
+    const payEmpty = document.getElementById('pay-empty');
+    if (payCanvas) {
+      const payTotals: Record<string, number> = {};
+      monthExpenses.forEach((e: any) => {
+        const method = e.paymentMethod || 'Other';
+        payTotals[method] = (payTotals[method] || 0) + e.amount;
+      });
+
+      if (Object.keys(payTotals).length === 0) {
+        payCanvas.style.display = 'none';
+        if (payEmpty) payEmpty.classList.remove('hidden');
+      } else {
+        payCanvas.style.display = 'block';
+        if (payEmpty) payEmpty.classList.add('hidden');
+        const sortedPay = Object.entries(payTotals).sort((a, b) => b[1] - a[1]);
+        const labels = sortedPay.map(p => p[0]);
+        const data = sortedPay.map(p => p[1]);
+        const colors = labels.map(l => PAY_COLORS[l] || '#64748b');
+
+        const chart = new Chart(payCanvas, {
+          type: 'doughnut',
+          data: {
+            labels,
+            datasets: [{ data, backgroundColor: colors, borderWidth: 0, hoverOffset: 8 }],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '60%',
+            plugins: {
+              legend: { position: 'bottom', labels: { boxWidth: 12, padding: 10, font: { size: 11 } } },
+              tooltip: {
+                callbacks: {
+                  label: (ctx: any) => {
+                    const pct = Math.round((ctx.raw / totalExpense) * 100);
+                    return `${ctx.label}: ${formatINR(ctx.raw)} (${pct}%)`;
+                  },
+                },
+              },
+            },
+          },
+        });
+        chartInstances.push(chart);
+      }
+    }
+
+    // ===== Category Comparison Table =====
+    const catCompare = document.getElementById('cat-compare-table');
+    if (catCompare) {
+      let prevMonth = currentMonth - 1;
+      let prevYear = currentYear;
+      if (prevMonth < 0) { prevMonth = 11; prevYear -= 1; }
+
+      const prevData = getMonthExpenses(expenses, prevYear, prevMonth);
+      const prevExpenses = prevData.filter((e: any) => e.type === 'expense');
+      const prevCatTotals: Record<string, number> = {};
+      prevExpenses.forEach((e: any) => {
+        prevCatTotals[e.category] = (prevCatTotals[e.category] || 0) + e.amount;
+      });
+
+      const allCats = new Set([...Object.keys(catTotals), ...Object.keys(prevCatTotals)]);
+
+      if (allCats.size === 0) {
+        catCompare.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">📋</div>
+            <p>No data to compare</p>
+          </div>
+        `;
+      } else {
+        const rows = Array.from(allCats).map(cat => {
+          const curr = catTotals[cat] || 0;
+          const prev = prevCatTotals[cat] || 0;
+          let pctChange = 0;
+          let changeLabel = '—';
+          let changeColor = 'var(--color-text-muted)';
+
+          if (prev > 0 && curr > 0) {
+            pctChange = Math.round(((curr - prev) / prev) * 100);
+            changeLabel = (pctChange > 0 ? '+' : '') + pctChange + '%';
+            changeColor = pctChange > 0 ? '#ef4444' : pctChange < 0 ? '#10b981' : 'var(--color-text-muted)';
+          } else if (curr > 0 && prev === 0) {
+            changeLabel = 'New';
+            changeColor = '#f59e0b';
+          } else if (curr === 0 && prev > 0) {
+            changeLabel = '-100%';
+            changeColor = '#10b981';
+          }
+
+          return { cat, curr, prev, changeLabel, changeColor };
+        }).sort((a, b) => b.curr - a.curr);
+
+        catCompare.innerHTML = `
+          <table class="w-full text-sm">
+            <thead>
+              <tr style="border-bottom: 1px solid var(--color-border);">
+                <th class="text-left py-2 font-medium" style="color: var(--color-text-muted);">Category</th>
+                <th class="text-right py-2 font-medium" style="color: var(--color-text-muted);">This</th>
+                <th class="text-right py-2 font-medium" style="color: var(--color-text-muted);">Last</th>
+                <th class="text-right py-2 font-medium" style="color: var(--color-text-muted);">Change</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rows.map(r => `
+                <tr style="border-bottom: 1px solid var(--color-border);">
+                  <td class="py-2 font-medium" style="color: var(--color-text);">
+                    <span class="mr-1">${CAT_ICONS[r.cat] || '📌'}</span>${r.cat}
+                  </td>
+                  <td class="text-right py-2" style="color: var(--color-text);">${formatINR(r.curr)}</td>
+                  <td class="text-right py-2" style="color: var(--color-text-muted);">${formatINR(r.prev)}</td>
+                  <td class="text-right py-2 font-semibold" style="color: ${r.changeColor};">${r.changeLabel}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+      }
+    }
+
+    // ===== Spending Calendar =====
+    const calendarEl = document.getElementById('spending-calendar');
+    if (calendarEl) {
+      const dailyMap: Record<number, number> = {};
+      monthExpenses.forEach((e: any) => {
+        const d = new Date(e.date);
+        const day = d.getDate();
+        dailyMap[day] = (dailyMap[day] || 0) + e.amount;
+      });
+
+      const maxSpend = Math.max(...Object.values(dailyMap), 1);
+      const firstDay = new Date(currentYear, currentMonth, 1).getDay(); // 0=Sun
+      const startOffset = firstDay === 0 ? 6 : firstDay - 1; // Mon=0
+      const dayLabels = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+
+      let html = '<div class="grid grid-cols-7 gap-1 text-center">';
+      // Header row
+      dayLabels.forEach(d => {
+        html += `<div class="text-xs font-medium py-1" style="color: var(--color-text-muted);">${d}</div>`;
+      });
+      // Blank cells
+      for (let i = 0; i < startOffset; i++) {
+        html += '<div></div>';
+      }
+      // Day cells
+      for (let day = 1; day <= daysInMonth; day++) {
+        const spent = dailyMap[day] || 0;
+        const intensity = spent > 0 ? Math.max(0.12, Math.min(0.9, (spent / maxSpend) * 0.9)) : 0;
+        const bgStyle = intensity > 0
+          ? `background: rgba(99, 102, 241, ${intensity}); color: ${intensity > 0.5 ? '#ffffff' : 'var(--color-text)'};`
+          : `background: var(--color-surface-alt); color: var(--color-text-muted);`;
+        const title = spent > 0 ? `${day} ${shortMonths[currentMonth]}: ${formatINR(spent)}` : `${day} ${shortMonths[currentMonth]}: No spending`;
+
+        html += `<div class="rounded text-xs font-medium py-1 cursor-default" style="${bgStyle}" title="${title}">${day}</div>`;
+      }
+      html += '</div>';
+      calendarEl.innerHTML = html;
+    }
+
+    // ===== Export Report =====
+    const exportBtn = document.getElementById('export-report');
+    if (exportBtn) {
+      // Remove old listener by cloning
+      const newBtn = exportBtn.cloneNode(true) as HTMLElement;
+      exportBtn.parentNode?.replaceChild(newBtn, exportBtn);
+
+      newBtn.addEventListener('click', () => {
+        const monthName = monthNames[currentMonth];
+        let report = `KharchaTracker Monthly Report\n`;
+        report += `${'='.repeat(40)}\n`;
+        report += `Month: ${monthName} ${currentYear}\n`;
+        report += `Generated: ${new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}\n\n`;
+
+        report += `--- SUMMARY ---\n`;
+        report += `Total Income:   ${formatINR(totalIncome)}\n`;
+        report += `Total Expense:  ${formatINR(totalExpense)}\n`;
+        report += `Savings:        ${(savings < 0 ? '-' : '')}${formatINR(Math.abs(savings))}\n`;
+        report += `Savings Rate:   ${savingsRate}%\n\n`;
+
+        if (Object.keys(catTotals).length > 0) {
+          report += `--- CATEGORY BREAKDOWN ---\n`;
+          Object.entries(catTotals)
+            .sort((a, b) => b[1] - a[1])
+            .forEach(([cat, amt]) => {
+              const pct = Math.round((amt / totalExpense) * 100);
+              report += `${cat.padEnd(22)} ${formatINR(amt).padStart(10)}  (${pct}%)\n`;
+            });
+          report += '\n';
+        }
+
+        const top5 = [...monthExpenses].sort((a: any, b: any) => b.amount - a.amount).slice(0, 5);
+        if (top5.length > 0) {
+          report += `--- TOP 5 EXPENSES ---\n`;
+          top5.forEach((e: any, i: number) => {
+            const d = new Date(e.date);
+            const dateStr = d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+            report += `${i + 1}. ${(e.description || e.category).padEnd(20)} ${formatINR(e.amount).padStart(10)}  (${dateStr})\n`;
+          });
+          report += '\n';
+        }
+
+        // Payment methods in report
+        const payTotals: Record<string, number> = {};
+        monthExpenses.forEach((e: any) => {
+          const method = e.paymentMethod || 'Other';
+          payTotals[method] = (payTotals[method] || 0) + e.amount;
+        });
+        if (Object.keys(payTotals).length > 0) {
+          report += `--- PAYMENT METHODS ---\n`;
+          Object.entries(payTotals)
+            .sort((a, b) => b[1] - a[1])
+            .forEach(([method, amt]) => {
+              const pct = Math.round((amt / totalExpense) * 100);
+              report += `${method.padEnd(22)} ${formatINR(amt).padStart(10)}  (${pct}%)\n`;
+            });
+          report += '\n';
+        }
+
+        report += `${'='.repeat(40)}\n`;
+        report += `Report by KharchaTracker\n`;
+
+        const blob = new Blob([report], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `KharchaTracker_Report_${monthName}_${currentYear}.txt`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('Report downloaded successfully!');
+      });
+    }
+  }
+
+  function initReports() {
+    const now = new Date();
+    currentYear = now.getFullYear();
+    currentMonth = now.getMonth();
+
+    loadReports();
+
+    document.getElementById('prev-month')?.addEventListener('click', () => {
+      currentMonth--;
+      if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+      loadReports();
+    });
+
+    document.getElementById('next-month')?.addEventListener('click', () => {
+      const now = new Date();
+      // Don't go beyond current month
+      if (currentYear === now.getFullYear() && currentMonth === now.getMonth()) return;
+      currentMonth++;
+      if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+      loadReports();
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', initReports);
+  document.addEventListener('astro:page-load', initReports);
+</script>

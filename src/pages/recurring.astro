@@ -1,0 +1,840 @@
+---
+import Layout from '../layouts/Layout.astro';
+import AdUnit from '../components/AdUnit.astro';
+---
+<Layout title="Recurring Expenses & Subscriptions - KharchaTracker" activeNav="home">
+
+  <!-- Page Header -->
+  <div class="flex items-center justify-between mb-4">
+    <div>
+      <h1 class="text-lg font-bold">Recurring & Subscriptions</h1>
+      <p class="text-xs" style="color: var(--color-text-muted);">Track all your recurring expenses</p>
+    </div>
+    <button id="open-add-modal" class="btn-primary btn-sm">
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+      Add
+    </button>
+  </div>
+
+  <!-- Summary Stats -->
+  <div class="grid grid-cols-3 gap-3 mb-4">
+    <div class="stat-card">
+      <p id="stat-monthly-cost" class="stat-value text-indigo-500">₹0</p>
+      <p class="stat-label">Monthly Cost</p>
+    </div>
+    <div class="stat-card">
+      <p id="stat-sub-count" class="stat-value text-emerald-500">0</p>
+      <p class="stat-label">Subscriptions</p>
+    </div>
+    <div class="stat-card">
+      <p id="stat-annual" class="stat-value text-amber-500">₹0</p>
+      <p class="stat-label">Annual Cost</p>
+    </div>
+  </div>
+
+  <!-- Upcoming Renewals -->
+  <div class="card mb-4">
+    <div class="flex items-center gap-2 mb-3">
+      <span class="text-xl">🔔</span>
+      <h2 class="font-semibold">Upcoming Renewals</h2>
+      <span id="upcoming-badge" class="badge bg-red-500 text-white text-xs ml-auto" style="display: none;">0</span>
+    </div>
+    <div id="upcoming-list" class="space-y-2"></div>
+    <div id="upcoming-empty" class="hidden text-center py-4" style="color: var(--color-text-muted);">
+      <p class="text-sm">No renewals in the next 7 days 🎉</p>
+    </div>
+  </div>
+
+  <AdUnit />
+
+  <!-- Active Subscriptions List -->
+  <div class="mb-4">
+    <div class="section-header">
+      <h2>Active Subscriptions</h2>
+      <span id="active-count" class="text-xs" style="color: var(--color-text-muted);">0 items</span>
+    </div>
+
+    <!-- Frequency Filter -->
+    <div class="flex gap-2 mb-3 overflow-x-auto pb-1" style="scrollbar-width: none;">
+      <button class="freq-filter chip active" data-freq="all">All</button>
+      <button class="freq-filter chip" data-freq="daily">Daily</button>
+      <button class="freq-filter chip" data-freq="weekly">Weekly</button>
+      <button class="freq-filter chip" data-freq="monthly">Monthly</button>
+      <button class="freq-filter chip" data-freq="yearly">Yearly</button>
+    </div>
+
+    <div id="subscriptions-list" class="space-y-2"></div>
+
+    <!-- Empty State -->
+    <div id="subs-empty" class="hidden empty-state card">
+      <div class="empty-icon">📱</div>
+      <p>No recurring expenses yet</p>
+      <button id="empty-add-btn" class="btn-primary btn-sm">Add Your First Subscription</button>
+    </div>
+  </div>
+
+  <AdUnit />
+
+  <!-- Subscription Cost Timeline -->
+  <div class="card mb-4">
+    <div class="flex items-center gap-2 mb-3">
+      <span class="text-xl">📊</span>
+      <h2 class="font-semibold">Monthly Cost Timeline</h2>
+    </div>
+    <div id="timeline-chart" class="space-y-2"></div>
+    <div id="timeline-empty" class="hidden text-center py-4" style="color: var(--color-text-muted);">
+      <p class="text-sm">Add recurring expenses to see cost trends</p>
+    </div>
+  </div>
+
+  <!-- Quick Add Templates -->
+  <div class="card mb-4">
+    <div class="flex items-center gap-2 mb-3">
+      <span class="text-xl">⚡</span>
+      <h2 class="font-semibold">Quick Add Subscriptions</h2>
+    </div>
+    <p class="text-xs mb-3" style="color: var(--color-text-muted);">One-tap to add popular subscriptions</p>
+    <div class="grid grid-cols-2 gap-2" id="quick-templates">
+      <button class="quick-tpl flex items-center gap-2 p-3 rounded-xl border transition-all text-left" style="background: var(--color-surface); border-color: var(--color-border);" data-name="Netflix" data-amount="199" data-cat="Entertainment" data-freq="monthly">
+        <span class="text-2xl">🎬</span>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium truncate">Netflix</p>
+          <p class="text-xs" style="color: var(--color-text-muted);">₹199/mo</p>
+        </div>
+        <svg class="w-5 h-5 flex-shrink-0" style="color: var(--color-text-muted);" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+      </button>
+      <button class="quick-tpl flex items-center gap-2 p-3 rounded-xl border transition-all text-left" style="background: var(--color-surface); border-color: var(--color-border);" data-name="Spotify" data-amount="119" data-cat="Entertainment" data-freq="monthly">
+        <span class="text-2xl">🎵</span>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium truncate">Spotify</p>
+          <p class="text-xs" style="color: var(--color-text-muted);">₹119/mo</p>
+        </div>
+        <svg class="w-5 h-5 flex-shrink-0" style="color: var(--color-text-muted);" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+      </button>
+      <button class="quick-tpl flex items-center gap-2 p-3 rounded-xl border transition-all text-left" style="background: var(--color-surface); border-color: var(--color-border);" data-name="Amazon Prime" data-amount="149" data-cat="Shopping" data-freq="monthly">
+        <span class="text-2xl">📦</span>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium truncate">Amazon Prime</p>
+          <p class="text-xs" style="color: var(--color-text-muted);">₹149/mo</p>
+        </div>
+        <svg class="w-5 h-5 flex-shrink-0" style="color: var(--color-text-muted);" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+      </button>
+      <button class="quick-tpl flex items-center gap-2 p-3 rounded-xl border transition-all text-left" style="background: var(--color-surface); border-color: var(--color-border);" data-name="YouTube Premium" data-amount="149" data-cat="Entertainment" data-freq="monthly">
+        <span class="text-2xl">▶️</span>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium truncate">YouTube Premium</p>
+          <p class="text-xs" style="color: var(--color-text-muted);">₹149/mo</p>
+        </div>
+        <svg class="w-5 h-5 flex-shrink-0" style="color: var(--color-text-muted);" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+      </button>
+      <button class="quick-tpl flex items-center gap-2 p-3 rounded-xl border transition-all text-left" style="background: var(--color-surface); border-color: var(--color-border);" data-name="Gym Membership" data-amount="1500" data-cat="Health" data-freq="monthly">
+        <span class="text-2xl">🏋️</span>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium truncate">Gym</p>
+          <p class="text-xs" style="color: var(--color-text-muted);">₹1,500/mo</p>
+        </div>
+        <svg class="w-5 h-5 flex-shrink-0" style="color: var(--color-text-muted);" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+      </button>
+      <button class="quick-tpl flex items-center gap-2 p-3 rounded-xl border transition-all text-left" style="background: var(--color-surface); border-color: var(--color-border);" data-name="Insurance" data-amount="500" data-cat="Bills & Utilities" data-freq="monthly">
+        <span class="text-2xl">🛡️</span>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium truncate">Insurance</p>
+          <p class="text-xs" style="color: var(--color-text-muted);">₹500/mo</p>
+        </div>
+        <svg class="w-5 h-5 flex-shrink-0" style="color: var(--color-text-muted);" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+      </button>
+      <button class="quick-tpl flex items-center gap-2 p-3 rounded-xl border transition-all text-left" style="background: var(--color-surface); border-color: var(--color-border);" data-name="Cloud Storage" data-amount="75" data-cat="Subscriptions" data-freq="monthly">
+        <span class="text-2xl">☁️</span>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium truncate">Cloud Storage</p>
+          <p class="text-xs" style="color: var(--color-text-muted);">₹75/mo</p>
+        </div>
+        <svg class="w-5 h-5 flex-shrink-0" style="color: var(--color-text-muted);" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+      </button>
+      <button class="quick-tpl flex items-center gap-2 p-3 rounded-xl border transition-all text-left" style="background: var(--color-surface); border-color: var(--color-border);" data-name="Newspaper" data-amount="299" data-cat="Education" data-freq="monthly">
+        <span class="text-2xl">📰</span>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium truncate">Newspaper</p>
+          <p class="text-xs" style="color: var(--color-text-muted);">₹299/mo</p>
+        </div>
+        <svg class="w-5 h-5 flex-shrink-0" style="color: var(--color-text-muted);" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <AdUnit />
+
+  <!-- Cost Optimization Tips -->
+  <div class="card mb-4">
+    <div class="flex items-center gap-2 mb-3">
+      <span class="text-xl">💡</span>
+      <h2 class="font-semibold">Cost Optimization Tips</h2>
+    </div>
+    <div class="space-y-3" id="tips-list">
+      <div class="flex items-start gap-3 p-3 rounded-xl" style="background: var(--color-surface-alt);">
+        <span class="text-lg flex-shrink-0">📅</span>
+        <div>
+          <p class="text-sm font-medium">Switch to yearly plans</p>
+          <p class="text-xs" style="color: var(--color-text-muted);">Most services offer 15-20% discount on annual billing. You could save significant money over a year.</p>
+        </div>
+      </div>
+      <div class="flex items-start gap-3 p-3 rounded-xl" style="background: var(--color-surface-alt);">
+        <span class="text-lg flex-shrink-0">👨‍👩‍👧‍👦</span>
+        <div>
+          <p class="text-sm font-medium">Share family plans</p>
+          <p class="text-xs" style="color: var(--color-text-muted);">Split costs with family members on services like Netflix, Spotify, YouTube Premium, and cloud storage.</p>
+        </div>
+      </div>
+      <div class="flex items-start gap-3 p-3 rounded-xl" style="background: var(--color-surface-alt);">
+        <span class="text-lg flex-shrink-0">🗑️</span>
+        <div>
+          <p class="text-sm font-medium">Cancel unused subscriptions</p>
+          <p class="text-xs" style="color: var(--color-text-muted);">Review your subscriptions monthly. If you haven't used a service in 30 days, consider cancelling.</p>
+        </div>
+      </div>
+      <div class="flex items-start gap-3 p-3 rounded-xl" style="background: var(--color-surface-alt);">
+        <span class="text-lg flex-shrink-0">🔄</span>
+        <div>
+          <p class="text-sm font-medium">Look for free alternatives</p>
+          <p class="text-xs" style="color: var(--color-text-muted);">Many paid services have free tiers or open-source alternatives that may meet your needs.</p>
+        </div>
+      </div>
+      <div class="flex items-start gap-3 p-3 rounded-xl" style="background: var(--color-surface-alt);">
+        <span class="text-lg flex-shrink-0">💳</span>
+        <div>
+          <p class="text-sm font-medium">Use cashback credit cards</p>
+          <p class="text-xs" style="color: var(--color-text-muted);">Pay subscriptions with a rewards card to earn cashback or points on recurring charges.</p>
+        </div>
+      </div>
+    </div>
+    <div id="savings-tip" class="hidden mt-3 p-3 rounded-xl border border-emerald-200" style="background: rgba(16, 185, 129, 0.08);">
+      <p class="text-sm font-medium text-emerald-600">💰 Your potential savings</p>
+      <p id="savings-tip-text" class="text-xs" style="color: var(--color-text-muted);"></p>
+    </div>
+  </div>
+
+  <!-- Add/Edit Recurring Expense Modal -->
+  <div id="recurring-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="flex items-center justify-between mb-4">
+        <h3 id="modal-title" class="font-bold text-lg">Add Recurring Expense</h3>
+        <button id="close-modal" class="p-1 rounded-lg transition-colors" style="color: var(--color-text-muted);">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <input id="edit-recurring-id" type="hidden" value="" />
+      <div class="space-y-3">
+        <div>
+          <label class="text-xs mb-1 block" style="color: var(--color-text-muted);">Amount (₹)</label>
+          <input id="rec-amount" type="number" inputmode="decimal" placeholder="199" class="input-field" min="1" />
+        </div>
+        <div>
+          <label class="text-xs mb-1 block" style="color: var(--color-text-muted);">Description</label>
+          <input id="rec-description" type="text" placeholder="e.g. Netflix, Gym, Insurance" class="input-field" maxlength="100" />
+        </div>
+        <div>
+          <label class="text-xs mb-1 block" style="color: var(--color-text-muted);">Category</label>
+          <select id="rec-category" class="input-field text-sm">
+            <option value="Subscriptions">📱 Subscriptions</option>
+            <option value="Entertainment">🎬 Entertainment</option>
+            <option value="Bills & Utilities">💡 Bills & Utilities</option>
+            <option value="Health">🏥 Health</option>
+            <option value="Education">📚 Education</option>
+            <option value="Rent & Housing">🏠 Rent & Housing</option>
+            <option value="Food & Dining">🍔 Food & Dining</option>
+            <option value="Transport">🚗 Transport</option>
+            <option value="Shopping">🛍️ Shopping</option>
+            <option value="Personal Care">💆 Personal Care</option>
+            <option value="Investments">📈 Investments</option>
+            <option value="Other">📌 Other</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-xs mb-1 block" style="color: var(--color-text-muted);">Frequency</label>
+          <div class="flex gap-2">
+            <button class="modal-freq chip" data-freq="daily">Daily</button>
+            <button class="modal-freq chip" data-freq="weekly">Weekly</button>
+            <button class="modal-freq chip active" data-freq="monthly">Monthly</button>
+            <button class="modal-freq chip" data-freq="yearly">Yearly</button>
+          </div>
+          <input id="rec-frequency" type="hidden" value="monthly" />
+        </div>
+        <div>
+          <label class="text-xs mb-1 block" style="color: var(--color-text-muted);">Start Date</label>
+          <input id="rec-date" type="date" class="input-field" />
+        </div>
+        <div>
+          <label class="text-xs mb-1 block" style="color: var(--color-text-muted);">Payment Method</label>
+          <select id="rec-payment" class="input-field text-sm">
+            <option value="UPI">UPI</option>
+            <option value="Credit Card">Credit Card</option>
+            <option value="Debit Card">Debit Card</option>
+            <option value="Net Banking">Net Banking</option>
+            <option value="Cash">Cash</option>
+            <option value="Wallet">Wallet</option>
+          </select>
+        </div>
+        <div class="flex gap-2 pt-1">
+          <button id="save-recurring-btn" class="btn-primary flex-1" style="padding: 0.75rem;">Save</button>
+          <button id="cancel-recurring-btn" class="btn-secondary" style="padding: 0.75rem;">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</Layout>
+
+<script>
+  const CATEGORY_ICONS: Record<string, string> = {
+    'Food & Dining': '🍔', 'Transport': '🚗', 'Shopping': '🛍️',
+    'Bills & Utilities': '💡', 'Entertainment': '🎬', 'Health': '🏥',
+    'Education': '📚', 'Rent & Housing': '🏠', 'Subscriptions': '📱',
+    'Personal Care': '💆', 'Investments': '📈', 'Other': '📌',
+  };
+
+  const FREQ_LABELS: Record<string, string> = {
+    daily: 'Daily', weekly: 'Weekly', monthly: 'Monthly', yearly: 'Yearly',
+  };
+
+  const FREQ_COLORS: Record<string, string> = {
+    daily: 'bg-red-100 text-red-700', weekly: 'bg-blue-100 text-blue-700',
+    monthly: 'bg-indigo-100 text-indigo-700', yearly: 'bg-amber-100 text-amber-700',
+  };
+
+  interface Expense {
+    id: string;
+    amount: number;
+    category: string;
+    description: string;
+    date: string;
+    type: string;
+    isRecurring?: boolean;
+    recurringFrequency?: 'daily' | 'weekly' | 'monthly' | 'yearly';
+    paymentMethod?: string;
+    createdAt: string;
+  }
+
+  let currentFreqFilter = 'all';
+
+  function formatINR(amount: number): string {
+    return '₹' + amount.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  }
+
+  function getExpenses(): Expense[] {
+    try { return JSON.parse(localStorage.getItem('kt_expenses') || '[]'); }
+    catch { return []; }
+  }
+
+  function getRecurring(): Expense[] {
+    return getExpenses().filter(e => e.isRecurring === true);
+  }
+
+  function showToast(message: string, type: 'success' | 'error') {
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3200);
+  }
+
+  function getMonthlyEquivalent(amount: number, freq: string): number {
+    switch (freq) {
+      case 'daily': return amount * 30;
+      case 'weekly': return amount * 4;
+      case 'monthly': return amount;
+      case 'yearly': return amount / 12;
+      default: return amount;
+    }
+  }
+
+  function getAnnualEquivalent(amount: number, freq: string): number {
+    switch (freq) {
+      case 'daily': return amount * 365;
+      case 'weekly': return amount * 52;
+      case 'monthly': return amount * 12;
+      case 'yearly': return amount;
+      default: return amount * 12;
+    }
+  }
+
+  function getNextDueDate(startDate: string, freq: string): Date {
+    const start = new Date(startDate);
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    const next = new Date(start);
+
+    if (freq === 'daily') {
+      if (next <= now) {
+        next.setTime(now.getTime());
+        next.setDate(next.getDate() + 1);
+      }
+    } else if (freq === 'weekly') {
+      while (next <= now) {
+        next.setDate(next.getDate() + 7);
+      }
+    } else if (freq === 'monthly') {
+      while (next <= now) {
+        next.setMonth(next.getMonth() + 1);
+      }
+    } else if (freq === 'yearly') {
+      while (next <= now) {
+        next.setFullYear(next.getFullYear() + 1);
+      }
+    }
+    return next;
+  }
+
+  function formatDate(date: Date): string {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    if (date.toDateString() === today.toDateString()) return 'Today';
+    if (date.toDateString() === tomorrow.toDateString()) return 'Tomorrow';
+
+    const diff = Math.ceil((date.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    if (diff <= 7 && diff > 0) return `In ${diff} days`;
+
+    return date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: date.getFullYear() !== today.getFullYear() ? 'numeric' : undefined });
+  }
+
+  // ===== INIT =====
+  function init() {
+    // Set default date
+    const dateInput = document.getElementById('rec-date') as HTMLInputElement;
+    if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
+
+    // Open add modal
+    document.getElementById('open-add-modal')?.addEventListener('click', () => openModal());
+    document.getElementById('empty-add-btn')?.addEventListener('click', () => openModal());
+
+    // Close modal
+    document.getElementById('close-modal')?.addEventListener('click', closeModal);
+    document.getElementById('cancel-recurring-btn')?.addEventListener('click', closeModal);
+    document.getElementById('recurring-modal')?.addEventListener('click', (e) => {
+      if ((e.target as HTMLElement).id === 'recurring-modal') closeModal();
+    });
+
+    // Frequency buttons in modal
+    document.querySelectorAll('.modal-freq').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.modal-freq').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        (document.getElementById('rec-frequency') as HTMLInputElement).value = (btn as HTMLElement).dataset.freq || 'monthly';
+      });
+    });
+
+    // Save
+    document.getElementById('save-recurring-btn')?.addEventListener('click', saveRecurring);
+
+    // Filter chips
+    document.querySelectorAll('.freq-filter').forEach(chip => {
+      chip.addEventListener('click', () => {
+        currentFreqFilter = (chip as HTMLElement).dataset.freq || 'all';
+        document.querySelectorAll('.freq-filter').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        renderSubscriptionsList();
+      });
+    });
+
+    // Quick add templates
+    document.querySelectorAll('.quick-tpl').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const el = btn as HTMLElement;
+        quickAdd(
+          el.dataset.name || '',
+          parseFloat(el.dataset.amount || '0'),
+          el.dataset.cat || 'Subscriptions',
+          el.dataset.freq || 'monthly'
+        );
+      });
+    });
+
+    renderAll();
+  }
+
+  function renderAll() {
+    renderStats();
+    renderUpcoming();
+    renderSubscriptionsList();
+    renderTimeline();
+    renderSavingsTip();
+  }
+
+  // ===== STATS =====
+  function renderStats() {
+    const recurring = getRecurring();
+    let totalMonthly = 0;
+    recurring.forEach(e => {
+      totalMonthly += getMonthlyEquivalent(e.amount, e.recurringFrequency || 'monthly');
+    });
+    const annual = totalMonthly * 12;
+
+    const statMonthly = document.getElementById('stat-monthly-cost');
+    const statCount = document.getElementById('stat-sub-count');
+    const statAnnual = document.getElementById('stat-annual');
+
+    if (statMonthly) statMonthly.textContent = formatINR(Math.round(totalMonthly));
+    if (statCount) statCount.textContent = String(recurring.length);
+    if (statAnnual) statAnnual.textContent = formatINR(Math.round(annual));
+  }
+
+  // ===== UPCOMING RENEWALS =====
+  function renderUpcoming() {
+    const recurring = getRecurring();
+    const listEl = document.getElementById('upcoming-list');
+    const emptyEl = document.getElementById('upcoming-empty');
+    const badgeEl = document.getElementById('upcoming-badge');
+    if (!listEl || !emptyEl || !badgeEl) return;
+
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    const sevenDays = new Date(now);
+    sevenDays.setDate(sevenDays.getDate() + 7);
+
+    const upcoming = recurring
+      .map(e => ({
+        ...e,
+        nextDue: getNextDueDate(e.date, e.recurringFrequency || 'monthly'),
+      }))
+      .filter(e => e.nextDue <= sevenDays)
+      .sort((a, b) => a.nextDue.getTime() - b.nextDue.getTime());
+
+    if (upcoming.length === 0) {
+      listEl.innerHTML = '';
+      emptyEl.classList.remove('hidden');
+      badgeEl.style.display = 'none';
+      return;
+    }
+
+    emptyEl.classList.add('hidden');
+    badgeEl.style.display = 'inline-flex';
+    badgeEl.textContent = String(upcoming.length);
+
+    listEl.innerHTML = upcoming.map(e => {
+      const icon = CATEGORY_ICONS[e.category] || '📌';
+      const dueLabel = formatDate(e.nextDue);
+      const isToday = e.nextDue.toDateString() === now.toDateString();
+      const isTomorrow = e.nextDue.toDateString() === new Date(now.getTime() + 86400000).toDateString();
+      const urgencyClass = isToday ? 'border-l-4 border-l-red-500' : isTomorrow ? 'border-l-4 border-l-amber-500' : 'border-l-4 border-l-blue-400';
+
+      return `
+        <div class="txn-item ${urgencyClass}">
+          <span class="txn-icon">${icon}</span>
+          <div class="txn-details">
+            <p class="txn-title">${e.description || e.category}</p>
+            <p class="txn-meta">${dueLabel} · ${e.paymentMethod || 'UPI'}</p>
+          </div>
+          <span class="txn-amount expense">${formatINR(e.amount)}</span>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // ===== ACTIVE SUBSCRIPTIONS =====
+  function renderSubscriptionsList() {
+    const recurring = getRecurring();
+    const listEl = document.getElementById('subscriptions-list');
+    const emptyEl = document.getElementById('subs-empty');
+    const countEl = document.getElementById('active-count');
+    if (!listEl || !emptyEl || !countEl) return;
+
+    let filtered = recurring;
+    if (currentFreqFilter !== 'all') {
+      filtered = recurring.filter(e => e.recurringFrequency === currentFreqFilter);
+    }
+
+    // Sort by monthly cost descending
+    filtered.sort((a, b) => {
+      const aCost = getMonthlyEquivalent(a.amount, a.recurringFrequency || 'monthly');
+      const bCost = getMonthlyEquivalent(b.amount, b.recurringFrequency || 'monthly');
+      return bCost - aCost;
+    });
+
+    countEl.textContent = `${filtered.length} item${filtered.length !== 1 ? 's' : ''}`;
+
+    if (filtered.length === 0) {
+      listEl.innerHTML = '';
+      emptyEl.classList.remove('hidden');
+      return;
+    }
+
+    emptyEl.classList.add('hidden');
+
+    listEl.innerHTML = filtered.map(e => {
+      const icon = CATEGORY_ICONS[e.category] || '📌';
+      const freq = e.recurringFrequency || 'monthly';
+      const freqLabel = FREQ_LABELS[freq] || 'Monthly';
+      const freqColor = FREQ_COLORS[freq] || 'bg-indigo-100 text-indigo-700';
+      const nextDue = getNextDueDate(e.date, freq);
+      const nextDueLabel = formatDate(nextDue);
+      const monthlyCost = getMonthlyEquivalent(e.amount, freq);
+
+      return `
+        <div class="txn-item">
+          <span class="txn-icon">${icon}</span>
+          <div class="txn-details">
+            <div class="flex items-center gap-2">
+              <p class="txn-title">${e.description || e.category}</p>
+              <span class="badge ${freqColor} text-xs" style="font-size: 0.625rem; padding: 0.125rem 0.5rem;">${freqLabel}</span>
+            </div>
+            <p class="txn-meta">Next: ${nextDueLabel} · ${e.paymentMethod || 'UPI'}${freq !== 'monthly' ? ' · ~' + formatINR(Math.round(monthlyCost)) + '/mo' : ''}</p>
+          </div>
+          <div class="flex flex-col items-end gap-1 flex-shrink-0">
+            <span class="txn-amount expense">${formatINR(e.amount)}</span>
+            <div class="flex gap-1">
+              <button class="edit-sub-btn p-1 rounded-lg transition-colors" style="color: #6366f1;" data-id="${e.id}" aria-label="Edit">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+              </button>
+              <button class="delete-sub-btn p-1 rounded-lg transition-colors" style="color: #ef4444;" data-id="${e.id}" aria-label="Delete">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    // Edit handlers
+    listEl.querySelectorAll('.edit-sub-btn').forEach(btn => {
+      btn.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        openEditModal((btn as HTMLElement).dataset.id!);
+      });
+    });
+
+    // Delete handlers
+    listEl.querySelectorAll('.delete-sub-btn').forEach(btn => {
+      btn.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        deleteRecurring((btn as HTMLElement).dataset.id!);
+      });
+    });
+  }
+
+  // ===== TIMELINE CHART =====
+  function renderTimeline() {
+    const recurring = getRecurring();
+    const chartEl = document.getElementById('timeline-chart');
+    const emptyEl = document.getElementById('timeline-empty');
+    if (!chartEl || !emptyEl) return;
+
+    if (recurring.length === 0) {
+      chartEl.innerHTML = '';
+      emptyEl.classList.remove('hidden');
+      return;
+    }
+
+    emptyEl.classList.add('hidden');
+
+    // Build monthly totals for last 6 months
+    const now = new Date();
+    const months: { label: string; total: number }[] = [];
+
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const label = d.toLocaleDateString('en-IN', { month: 'short', year: '2-digit' });
+
+      // Sum recurring items active at that month
+      let total = 0;
+      recurring.forEach(e => {
+        const startDate = new Date(e.date);
+        if (startDate <= new Date(d.getFullYear(), d.getMonth() + 1, 0)) {
+          total += getMonthlyEquivalent(e.amount, e.recurringFrequency || 'monthly');
+        }
+      });
+
+      months.push({ label, total: Math.round(total) });
+    }
+
+    const maxTotal = Math.max(...months.map(m => m.total), 1);
+
+    chartEl.innerHTML = months.map(m => {
+      const pct = Math.round((m.total / maxTotal) * 100);
+      return `
+        <div class="flex items-center gap-3">
+          <span class="text-xs w-14 text-right flex-shrink-0" style="color: var(--color-text-muted);">${m.label}</span>
+          <div class="flex-1 progress-bar" style="height: 1.25rem; border-radius: 0.5rem;">
+            <div class="progress-bar-fill" style="width: ${pct}%; background: linear-gradient(135deg, #6366f1, #4f46e5); border-radius: 0.5rem;"></div>
+          </div>
+          <span class="text-xs font-semibold w-16 text-right flex-shrink-0">${formatINR(m.total)}</span>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // ===== SAVINGS TIP =====
+  function renderSavingsTip() {
+    const recurring = getRecurring();
+    const tipEl = document.getElementById('savings-tip');
+    const tipText = document.getElementById('savings-tip-text');
+    if (!tipEl || !tipText) return;
+
+    const monthlyItems = recurring.filter(e => e.recurringFrequency === 'monthly');
+    if (monthlyItems.length === 0) {
+      tipEl.classList.add('hidden');
+      return;
+    }
+
+    const totalMonthly = monthlyItems.reduce((s, e) => s + e.amount, 0);
+    const yearlyIfSwitched = totalMonthly * 12 * 0.8; // 20% savings assumed
+    const currentYearly = totalMonthly * 12;
+    const saved = Math.round(currentYearly - yearlyIfSwitched);
+
+    if (saved > 0) {
+      tipEl.classList.remove('hidden');
+      tipText.textContent = `If you switched all ${monthlyItems.length} monthly subscriptions (${formatINR(totalMonthly)}/mo) to yearly plans with ~20% discounts, you could save approximately ${formatINR(saved)} per year!`;
+    } else {
+      tipEl.classList.add('hidden');
+    }
+  }
+
+  // ===== MODAL =====
+  function openModal(prefill?: { name?: string; amount?: number; category?: string; freq?: string }) {
+    const modal = document.getElementById('recurring-modal');
+    const title = document.getElementById('modal-title');
+    if (!modal || !title) return;
+
+    title.textContent = 'Add Recurring Expense';
+    (document.getElementById('edit-recurring-id') as HTMLInputElement).value = '';
+
+    // Reset form
+    (document.getElementById('rec-amount') as HTMLInputElement).value = prefill?.amount ? String(prefill.amount) : '';
+    (document.getElementById('rec-description') as HTMLInputElement).value = prefill?.name || '';
+    (document.getElementById('rec-category') as HTMLSelectElement).value = prefill?.category || 'Subscriptions';
+    (document.getElementById('rec-date') as HTMLInputElement).value = new Date().toISOString().split('T')[0];
+    (document.getElementById('rec-payment') as HTMLSelectElement).value = 'UPI';
+
+    // Reset frequency buttons
+    const freq = prefill?.freq || 'monthly';
+    (document.getElementById('rec-frequency') as HTMLInputElement).value = freq;
+    document.querySelectorAll('.modal-freq').forEach(b => {
+      b.classList.toggle('active', (b as HTMLElement).dataset.freq === freq);
+    });
+
+    modal.style.display = 'flex';
+  }
+
+  function openEditModal(id: string) {
+    const expenses = getExpenses();
+    const expense = expenses.find(e => e.id === id);
+    if (!expense) return;
+
+    const modal = document.getElementById('recurring-modal');
+    const title = document.getElementById('modal-title');
+    if (!modal || !title) return;
+
+    title.textContent = 'Edit Recurring Expense';
+    (document.getElementById('edit-recurring-id') as HTMLInputElement).value = id;
+    (document.getElementById('rec-amount') as HTMLInputElement).value = String(expense.amount);
+    (document.getElementById('rec-description') as HTMLInputElement).value = expense.description || '';
+    (document.getElementById('rec-category') as HTMLSelectElement).value = expense.category;
+    (document.getElementById('rec-date') as HTMLInputElement).value = expense.date ? expense.date.split('T')[0] : new Date().toISOString().split('T')[0];
+    (document.getElementById('rec-payment') as HTMLSelectElement).value = expense.paymentMethod || 'UPI';
+
+    const freq = expense.recurringFrequency || 'monthly';
+    (document.getElementById('rec-frequency') as HTMLInputElement).value = freq;
+    document.querySelectorAll('.modal-freq').forEach(b => {
+      b.classList.toggle('active', (b as HTMLElement).dataset.freq === freq);
+    });
+
+    modal.style.display = 'flex';
+  }
+
+  function closeModal() {
+    const modal = document.getElementById('recurring-modal');
+    if (modal) modal.style.display = 'none';
+  }
+
+  // ===== SAVE =====
+  function saveRecurring() {
+    const editId = (document.getElementById('edit-recurring-id') as HTMLInputElement).value;
+    const amount = parseFloat((document.getElementById('rec-amount') as HTMLInputElement).value);
+    const description = (document.getElementById('rec-description') as HTMLInputElement).value.trim();
+    const category = (document.getElementById('rec-category') as HTMLSelectElement).value;
+    const frequency = (document.getElementById('rec-frequency') as HTMLInputElement).value;
+    const date = (document.getElementById('rec-date') as HTMLInputElement).value;
+    const paymentMethod = (document.getElementById('rec-payment') as HTMLSelectElement).value;
+
+    if (!amount || amount <= 0) {
+      showToast('Please enter a valid amount', 'error');
+      return;
+    }
+    if (!description) {
+      showToast('Please enter a description', 'error');
+      return;
+    }
+    if (!date) {
+      showToast('Please select a start date', 'error');
+      return;
+    }
+
+    const expenses = getExpenses();
+
+    if (editId) {
+      // Edit existing
+      const idx = expenses.findIndex(e => e.id === editId);
+      if (idx !== -1) {
+        expenses[idx] = {
+          ...expenses[idx],
+          amount,
+          description,
+          category,
+          recurringFrequency: frequency as Expense['recurringFrequency'],
+          date: new Date(date).toISOString(),
+          paymentMethod,
+        };
+        localStorage.setItem('kt_expenses', JSON.stringify(expenses));
+        showToast('Subscription updated!', 'success');
+      }
+    } else {
+      // Add new
+      const newExpense: Expense = {
+        id: Date.now().toString(36) + Math.random().toString(36).substr(2, 9),
+        amount,
+        category,
+        description,
+        date: new Date(date).toISOString(),
+        type: 'expense',
+        isRecurring: true,
+        recurringFrequency: frequency as Expense['recurringFrequency'],
+        paymentMethod,
+        createdAt: new Date().toISOString(),
+      };
+      expenses.push(newExpense);
+      localStorage.setItem('kt_expenses', JSON.stringify(expenses));
+      showToast('Recurring expense added!', 'success');
+    }
+
+    closeModal();
+    renderAll();
+  }
+
+  // ===== DELETE =====
+  function deleteRecurring(id: string) {
+    if (!confirm('Remove this recurring expense?')) return;
+    const expenses = getExpenses().filter(e => e.id !== id);
+    localStorage.setItem('kt_expenses', JSON.stringify(expenses));
+    showToast('Subscription removed', 'success');
+    renderAll();
+  }
+
+  // ===== QUICK ADD =====
+  function quickAdd(name: string, amount: number, category: string, freq: string) {
+    // Check if already exists
+    const recurring = getRecurring();
+    const exists = recurring.some(e =>
+      e.description?.toLowerCase() === name.toLowerCase() && e.amount === amount
+    );
+    if (exists) {
+      showToast(`${name} is already added`, 'error');
+      return;
+    }
+    openModal({ name, amount, category, freq });
+  }
+
+  document.addEventListener('DOMContentLoaded', init);
+  document.addEventListener('astro:page-load', init);
+</script>

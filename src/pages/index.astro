@@ -1,0 +1,448 @@
+---
+import Layout from '../layouts/Layout.astro';
+import AdUnit from '../components/AdUnit.astro';
+---
+<Layout title="KharchaTracker - Smart Expense Manager" activeNav="home">
+
+  <!-- Greeting + Date -->
+  <div class="mb-4">
+    <h1 id="greeting" class="text-xl font-bold" style="color: var(--color-text);">Good Morning!</h1>
+    <p class="text-sm" style="color: var(--color-text-muted);" id="today-date"></p>
+  </div>
+
+  <!-- Spending Score Circle -->
+  <div class="card text-center mb-4">
+    <p class="text-sm mb-3" style="color: var(--color-text-muted);">Your Spending Score</p>
+    <div class="relative inline-flex items-center justify-center">
+      <svg class="w-32 h-32 -rotate-90" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="42" fill="none" stroke="var(--color-border)" stroke-width="6"/>
+        <circle id="score-ring" cx="50" cy="50" r="42" fill="none" stroke="#6366f1" stroke-width="6" stroke-linecap="round" stroke-dasharray="263.9" stroke-dashoffset="263.9" style="transition: stroke-dashoffset 1.2s ease-out, stroke 0.5s ease;"/>
+      </svg>
+      <div class="absolute text-center">
+        <span id="score-value" class="text-3xl font-bold" style="color: var(--color-text);">--</span>
+        <p id="score-label" class="text-xs font-medium" style="color: var(--color-text-muted);">Loading</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Monthly Summary -->
+  <div class="grid grid-cols-3 gap-3 mb-4">
+    <div class="stat-card">
+      <p class="stat-value" style="color: #10b981;" id="month-income">₹0</p>
+      <p class="stat-label">Income</p>
+    </div>
+    <div class="stat-card">
+      <p class="stat-value" style="color: #ef4444;" id="month-expense">₹0</p>
+      <p class="stat-label">Expenses</p>
+    </div>
+    <div class="stat-card">
+      <p class="stat-value" style="color: #6366f1;" id="month-balance">₹0</p>
+      <p class="stat-label">Balance</p>
+    </div>
+  </div>
+
+  <!-- Daily Spending Bar (mini sparkline) -->
+  <div class="card mb-4">
+    <div class="section-header">
+      <h2>This Week</h2>
+      <span class="text-xs" style="color: var(--color-text-muted);" id="week-total"></span>
+    </div>
+    <div class="flex items-end gap-1 justify-between" id="daily-bars" style="height: 60px;">
+      <!-- 7 bars rendered by JS -->
+    </div>
+    <div class="flex justify-between mt-2">
+      <span class="text-xs" style="color: var(--color-text-muted);">Mon</span>
+      <span class="text-xs" style="color: var(--color-text-muted);">Tue</span>
+      <span class="text-xs" style="color: var(--color-text-muted);">Wed</span>
+      <span class="text-xs" style="color: var(--color-text-muted);">Thu</span>
+      <span class="text-xs" style="color: var(--color-text-muted);">Fri</span>
+      <span class="text-xs" style="color: var(--color-text-muted);">Sat</span>
+      <span class="text-xs" style="color: var(--color-text-muted);">Sun</span>
+    </div>
+  </div>
+
+  <!-- Spending Chart -->
+  <div class="card mb-4">
+    <div class="section-header">
+      <h2>Spending by Category</h2>
+    </div>
+    <div class="chart-container" style="height: 220px;">
+      <canvas id="category-chart"></canvas>
+    </div>
+    <div id="no-data-msg" class="hidden empty-state">
+      <div class="empty-icon">📊</div>
+      <p>No expenses yet. Tap + to add your first expense!</p>
+    </div>
+  </div>
+
+  <AdUnit />
+
+  <!-- Quick Insights -->
+  <div class="mb-4">
+    <div class="section-header">
+      <h2>Smart Insights</h2>
+      <a href="/insights">View All</a>
+    </div>
+    <div id="insights-container" class="space-y-3">
+      <div class="card" style="opacity: 0.5;">
+        <div style="height: 16px; background: var(--color-surface-alt); border-radius: 8px; width: 75%; margin-bottom: 8px;"></div>
+        <div style="height: 12px; background: var(--color-surface-alt); border-radius: 8px; width: 100%;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Transactions -->
+  <div class="mb-4">
+    <div class="section-header">
+      <h2>Recent Transactions</h2>
+      <a href="/history">See All</a>
+    </div>
+    <div id="recent-list" class="space-y-2">
+      <div class="empty-state">
+        <div class="empty-icon">📝</div>
+        <p>No transactions yet</p>
+        <a href="/add" class="btn-primary">Add Expense</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Budget Progress -->
+  <div class="mb-4">
+    <div class="section-header">
+      <h2>Budget Progress</h2>
+      <a href="/budgets">Manage</a>
+    </div>
+    <div id="budget-progress" class="space-y-3">
+      <div class="empty-state" style="padding: 1.5rem;">
+        <div class="empty-icon">🎯</div>
+        <p class="text-sm">Set budgets to track your spending limits</p>
+        <a href="/budgets" class="btn-secondary">Set Budget</a>
+      </div>
+    </div>
+  </div>
+
+  <AdUnit />
+
+  <!-- Active Challenges -->
+  <div class="mb-4">
+    <div class="section-header">
+      <h2>Active Challenges</h2>
+      <a href="/challenges">View All</a>
+    </div>
+    <div id="challenges-preview" class="space-y-2">
+      <div class="empty-state" style="padding: 1.5rem;">
+        <div class="empty-icon">⚡</div>
+        <p class="text-sm">Take a savings challenge to level up your finances!</p>
+        <a href="/challenges" class="btn-accent">Start Challenge</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions Grid -->
+  <div class="mb-6">
+    <div class="section-header">
+      <h2>Quick Actions</h2>
+    </div>
+    <div class="grid grid-cols-2 gap-3">
+      <a href="/deals" class="card flex items-center gap-3 no-underline" style="padding: 0.875rem;">
+        <span class="text-2xl">🔍</span>
+        <div>
+          <p class="text-sm font-semibold" style="color: var(--color-text);">Find Deals</p>
+          <p class="text-xs" style="color: var(--color-text-muted);">Save on expenses</p>
+        </div>
+      </a>
+      <a href="/reports" class="card flex items-center gap-3 no-underline" style="padding: 0.875rem;">
+        <span class="text-2xl">📊</span>
+        <div>
+          <p class="text-sm font-semibold" style="color: var(--color-text);">Reports</p>
+          <p class="text-xs" style="color: var(--color-text-muted);">Monthly analysis</p>
+        </div>
+      </a>
+      <a href="/recurring" class="card flex items-center gap-3 no-underline" style="padding: 0.875rem;">
+        <span class="text-2xl">🔄</span>
+        <div>
+          <p class="text-sm font-semibold" style="color: var(--color-text);">Recurring</p>
+          <p class="text-xs" style="color: var(--color-text-muted);">Subscriptions & EMIs</p>
+        </div>
+      </a>
+      <a href="/about" class="card flex items-center gap-3 no-underline" style="padding: 0.875rem;">
+        <span class="text-2xl">ℹ️</span>
+        <div>
+          <p class="text-sm font-semibold" style="color: var(--color-text);">About</p>
+          <p class="text-xs" style="color: var(--color-text-muted);">App info & help</p>
+        </div>
+      </a>
+    </div>
+  </div>
+
+</Layout>
+
+<script>
+  import Chart from 'chart.js/auto';
+
+  const CAT_ICONS: Record<string, string> = {
+    'Food & Dining': '🍔', 'Transport': '🚗', 'Shopping': '🛍️',
+    'Bills & Utilities': '💡', 'Entertainment': '🎬', 'Health': '🏥',
+    'Education': '📚', 'Rent & Housing': '🏠', 'Subscriptions': '📱',
+    'Personal Care': '💆', 'Investments': '📈', 'Other': '📌',
+    'Salary': '💼', 'Freelance': '💻', 'Business': '🏪',
+    'Investment Returns': '📈', 'Rental Income': '🏠', 'Gift': '🎁', 'Refund': '💰',
+  };
+
+  const CAT_COLORS: Record<string, string> = {
+    'Food & Dining': '#f59e0b', 'Transport': '#3b82f6', 'Shopping': '#ec4899',
+    'Bills & Utilities': '#8b5cf6', 'Entertainment': '#ef4444', 'Health': '#10b981',
+    'Education': '#6366f1', 'Rent & Housing': '#f97316', 'Subscriptions': '#14b8a6',
+    'Personal Care': '#d946ef', 'Investments': '#059669', 'Other': '#64748b',
+  };
+
+  function formatINR(amount: number): string {
+    return '₹' + amount.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  }
+
+  function loadDashboard() {
+    const expenses: any[] = JSON.parse(localStorage.getItem('kt_expenses') || '[]');
+    const budgets: any[] = JSON.parse(localStorage.getItem('kt_budgets') || '[]');
+    const settings: any = JSON.parse(localStorage.getItem('kt_settings') || '{}');
+    const now = new Date();
+
+    // Greeting
+    const hour = now.getHours();
+    let greet = 'Good Evening!';
+    if (hour < 12) greet = 'Good Morning!';
+    else if (hour < 17) greet = 'Good Afternoon!';
+    const greetEl = document.getElementById('greeting');
+    if (greetEl) greetEl.textContent = greet;
+
+    const dateEl = document.getElementById('today-date');
+    if (dateEl) dateEl.textContent = now.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
+    // This month filter
+    const thisMonth = expenses.filter((e: any) => {
+      const d = new Date(e.date);
+      return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+    });
+    const monthExpenses = thisMonth.filter((e: any) => e.type === 'expense');
+    const monthIncome = thisMonth.filter((e: any) => e.type === 'income');
+
+    const totalExpense = monthExpenses.reduce((s: number, e: any) => s + e.amount, 0);
+    const totalIncome = monthIncome.reduce((s: number, e: any) => s + e.amount, 0);
+    const balance = totalIncome - totalExpense;
+
+    document.getElementById('month-income')!.textContent = formatINR(totalIncome);
+    document.getElementById('month-expense')!.textContent = formatINR(totalExpense);
+
+    const balEl = document.getElementById('month-balance')!;
+    balEl.textContent = (balance < 0 ? '-' : '') + formatINR(Math.abs(balance));
+    balEl.style.color = balance >= 0 ? '#6366f1' : '#ef4444';
+
+    // Spending Score
+    let score = 70;
+    const income = settings.monthlyIncome || totalIncome;
+    if (income > 0) {
+      const ratio = totalExpense / income;
+      if (ratio < 0.5) score += 20;
+      else if (ratio < 0.7) score += 10;
+      else if (ratio > 0.9) score -= 20;
+      else if (ratio > 0.8) score -= 10;
+    }
+    if (expenses.length === 0) score = 0;
+    score = Math.max(0, Math.min(100, score));
+
+    const scoreRing = document.getElementById('score-ring') as SVGCircleElement;
+    const scoreValue = document.getElementById('score-value');
+    const scoreLabel = document.getElementById('score-label');
+    if (scoreRing && scoreValue && scoreLabel) {
+      const offset = 263.9 - (263.9 * score / 100);
+      setTimeout(() => { scoreRing.style.strokeDashoffset = String(offset); }, 100);
+      scoreValue.textContent = String(score);
+      let label = 'Excellent'; let color = '#10b981';
+      if (score === 0) { label = 'Add expenses'; color = '#64748b'; }
+      else if (score < 40) { label = 'Needs Work'; color = '#ef4444'; }
+      else if (score < 60) { label = 'Fair'; color = '#f59e0b'; }
+      else if (score < 80) { label = 'Good'; color = '#3b82f6'; }
+      scoreLabel.textContent = label;
+      scoreRing.style.stroke = color;
+    }
+
+    // Weekly bars
+    const dailyBars = document.getElementById('daily-bars');
+    const weekTotalEl = document.getElementById('week-total');
+    if (dailyBars) {
+      const dayOfWeek = now.getDay() === 0 ? 6 : now.getDay() - 1; // Mon=0
+      const weekStart = new Date(now);
+      weekStart.setDate(now.getDate() - dayOfWeek);
+      weekStart.setHours(0, 0, 0, 0);
+
+      const dailyTotals: number[] = [0, 0, 0, 0, 0, 0, 0];
+      monthExpenses.forEach((e: any) => {
+        const d = new Date(e.date);
+        const diff = Math.floor((d.getTime() - weekStart.getTime()) / 86400000);
+        if (diff >= 0 && diff < 7) dailyTotals[diff] += e.amount;
+      });
+
+      const maxDaily = Math.max(...dailyTotals, 1);
+      const weekTotal = dailyTotals.reduce((a, b) => a + b, 0);
+      if (weekTotalEl) weekTotalEl.textContent = formatINR(weekTotal);
+
+      dailyBars.innerHTML = dailyTotals.map((val, i) => {
+        const h = Math.max(4, (val / maxDaily) * 56);
+        const isToday = i === dayOfWeek;
+        const bg = isToday ? 'background: linear-gradient(to top, #6366f1, #818cf8);' : 'background: #e2e8f0;';
+        const darkBg = isToday ? '' : '';
+        return `<div style="flex: 1; height: ${h}px; ${bg} border-radius: 4px; transition: height 0.5s ease;" title="${formatINR(val)}"></div>`;
+      }).join('');
+    }
+
+    // Category chart
+    const catTotals: Record<string, number> = {};
+    monthExpenses.forEach((e: any) => {
+      catTotals[e.category] = (catTotals[e.category] || 0) + e.amount;
+    });
+
+    const chartCanvas = document.getElementById('category-chart') as HTMLCanvasElement;
+    const noDataMsg = document.getElementById('no-data-msg');
+
+    if (Object.keys(catTotals).length === 0) {
+      if (chartCanvas) chartCanvas.style.display = 'none';
+      if (noDataMsg) noDataMsg.classList.remove('hidden');
+    } else {
+      if (noDataMsg) noDataMsg.classList.add('hidden');
+      if (chartCanvas) {
+        chartCanvas.style.display = 'block';
+        const labels = Object.keys(catTotals);
+        const data = Object.values(catTotals);
+        const colors = labels.map(l => CAT_COLORS[l] || '#64748b');
+
+        new Chart(chartCanvas, {
+          type: 'doughnut',
+          data: {
+            labels,
+            datasets: [{ data, backgroundColor: colors, borderWidth: 0, hoverOffset: 8 }],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '65%',
+            plugins: {
+              legend: { position: 'bottom', labels: { boxWidth: 12, padding: 12, font: { size: 11 } } },
+              tooltip: { callbacks: { label: (ctx: any) => `${ctx.label}: ${formatINR(ctx.raw)}` } },
+            },
+          },
+        });
+      }
+    }
+
+    // Recent transactions (last 5)
+    const recentList = document.getElementById('recent-list');
+    if (recentList) {
+      const sorted = [...expenses].sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 5);
+      if (sorted.length > 0) {
+        recentList.innerHTML = sorted.map((e: any) => {
+          const icon = CAT_ICONS[e.category] || '📌';
+          const isIncome = e.type === 'income';
+          const d = new Date(e.date);
+          const dateStr = d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+          return `
+            <div class="txn-item">
+              <span class="txn-icon">${icon}</span>
+              <div class="txn-details">
+                <p class="txn-title">${e.description || e.category}</p>
+                <p class="txn-meta">${e.category} &middot; ${dateStr}</p>
+              </div>
+              <span class="txn-amount ${isIncome ? 'income' : 'expense'}">
+                ${isIncome ? '+' : '-'}${formatINR(e.amount)}
+              </span>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+
+    // Budget progress
+    const budgetContainer = document.getElementById('budget-progress');
+    if (budgetContainer && budgets.length > 0) {
+      budgetContainer.innerHTML = budgets.map((b: any) => {
+        const spent = monthExpenses.filter((e: any) => e.category === b.category).reduce((s: number, e: any) => s + e.amount, 0);
+        const pct = Math.min(100, Math.round((spent / b.limit) * 100));
+        let barColor = '#10b981';
+        if (pct >= 100) barColor = '#ef4444';
+        else if (pct >= 80) barColor = '#f59e0b';
+
+        return `
+          <div class="card" style="padding: 0.875rem;">
+            <div class="flex justify-between items-center mb-2">
+              <span class="text-sm font-medium" style="color: var(--color-text);">${b.category}</span>
+              <span class="text-xs" style="color: var(--color-text-muted);">${formatINR(spent)} / ${formatINR(b.limit)}</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-bar-fill" style="width: ${pct}%; background: ${barColor};"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Insights
+    const insightsContainer = document.getElementById('insights-container');
+    if (insightsContainer) {
+      const insights: {icon: string; title: string; desc: string; type: string}[] = [];
+
+      if (totalExpense === 0 && totalIncome === 0) {
+        insights.push({ icon: '👋', title: 'Welcome to KharchaTracker!', desc: 'Start by adding your first expense or income. Tap the + button below.', type: 'tip' });
+      } else {
+        const topCat = Object.entries(catTotals).sort((a, b) => b[1] - a[1])[0];
+        if (topCat) {
+          insights.push({ icon: '🔍', title: `${topCat[0]} is your top spend`, desc: `You spent ${formatINR(topCat[1])} on ${topCat[0]} this month.`, type: 'trend' });
+        }
+        if (income > 0 && totalExpense / income > 0.8) {
+          insights.push({ icon: '⚠️', title: 'High spending alert', desc: `You've used ${Math.round(totalExpense / income * 100)}% of your income this month.`, type: 'warning' });
+        } else if (income > 0 && totalExpense / income < 0.5) {
+          insights.push({ icon: '🎉', title: 'Great savings rate!', desc: `You've saved ${Math.round((1 - totalExpense / income) * 100)}% of your income. Keep it up!`, type: 'achievement' });
+        }
+      }
+
+      if (insights.length > 0) {
+        const borderMap: Record<string, string> = {
+          warning: '#f59e0b', tip: '#6366f1', trend: '#3b82f6', achievement: '#10b981'
+        };
+        insightsContainer.innerHTML = insights.slice(0, 2).map(i => `
+          <div class="card" style="padding: 0.875rem; border-left: 3px solid ${borderMap[i.type] || '#6366f1'};">
+            <div class="flex items-start gap-3">
+              <span class="text-xl">${i.icon}</span>
+              <div>
+                <p class="text-sm font-semibold" style="color: var(--color-text);">${i.title}</p>
+                <p class="text-xs mt-1" style="color: var(--color-text-muted);">${i.desc}</p>
+              </div>
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    // Challenges preview
+    const challengesContainer = document.getElementById('challenges-preview');
+    const challenges: any[] = JSON.parse(localStorage.getItem('kt_challenges') || '[]');
+    const activeChallenges = challenges.filter((c: any) => !c.isCompleted && new Date(c.endDate) >= now);
+    if (challengesContainer && activeChallenges.length > 0) {
+      challengesContainer.innerHTML = activeChallenges.slice(0, 2).map((c: any) => {
+        const daysLeft = Math.ceil((new Date(c.endDate).getTime() - now.getTime()) / 86400000);
+        return `
+          <div class="card" style="padding: 0.875rem;">
+            <div class="flex items-center gap-3">
+              <span class="text-xl">⚡</span>
+              <div class="flex-1">
+                <p class="text-sm font-semibold" style="color: var(--color-text);">${c.title}</p>
+                <p class="text-xs" style="color: var(--color-text-muted);">${daysLeft} days remaining</p>
+              </div>
+              <span class="badge" style="background: rgba(99,102,241,0.1); color: #6366f1;">Active</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', loadDashboard);
+  document.addEventListener('astro:page-load', loadDashboard);
+</script>

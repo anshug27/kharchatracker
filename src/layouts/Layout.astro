@@ -1,0 +1,143 @@
+---
+interface Props {
+  title: string;
+  description?: string;
+  activeNav?: 'home' | 'add' | 'insights' | 'challenges' | 'settings';
+  showNav?: boolean;
+}
+
+const {
+  title,
+  description = 'KharchaTracker - Smart Expense Manager. Track spending, get AI insights, find deals, and crush savings challenges.',
+  activeNav = 'home',
+  showNav = true,
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+---
+<!doctype html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="description" content={description} />
+  <link rel="canonical" href={canonicalURL} />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#6366f1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="KharchaTracker" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content={canonicalURL} />
+
+  <title>{title}</title>
+
+  <!-- AdSense placeholder -->
+  <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXX" crossorigin="anonymous"></script> -->
+</head>
+<body class="h-full flex flex-col" style="background: var(--color-surface-alt); color: var(--color-text);">
+
+  <!-- Top Header -->
+  <header style="background: var(--color-surface); border-bottom: 1px solid var(--color-border);" class="sticky top-0 z-40 backdrop-blur-lg">
+    <div class="max-w-lg mx-auto px-4 py-3 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2 no-underline">
+        <span class="text-2xl">💰</span>
+        <span class="font-bold text-lg" style="color: var(--color-text);">Kharcha<span style="color: #6366f1;">Tracker</span></span>
+      </a>
+      <div class="flex items-center gap-2">
+        <button id="theme-toggle" class="p-2 rounded-xl transition-colors" style="color: var(--color-text-muted);" aria-label="Toggle dark mode">
+          <svg id="icon-moon" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+          <svg id="icon-sun" class="w-5 h-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-1 overflow-y-auto pb-24">
+    <div class="max-w-lg mx-auto px-4 py-4 page-enter">
+      <slot />
+    </div>
+  </main>
+
+  <!-- Bottom Navigation -->
+  {showNav && (
+    <nav style="background: var(--color-surface); border-top: 1px solid var(--color-border);" class="fixed bottom-0 left-0 right-0 z-40 backdrop-blur-lg">
+      <div class="max-w-lg mx-auto flex justify-around py-2 px-1">
+        <a href="/" class={`nav-link ${activeNav === 'home' ? 'active' : ''}`}>
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+          <span>Home</span>
+        </a>
+        <a href="/insights" class={`nav-link ${activeNav === 'insights' ? 'active' : ''}`}>
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+          <span>Insights</span>
+        </a>
+        <a href="/add" class="flex flex-col items-center gap-1 -mt-5 no-underline">
+          <div style="background: linear-gradient(135deg, #6366f1, #4f46e5); box-shadow: 0 4px 15px rgba(99,102,241,0.4);" class="w-14 h-14 rounded-full flex items-center justify-center hover:scale-105 transition-transform active:scale-95">
+            <svg class="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+          </div>
+          <span class="text-xs font-semibold" style="color: #6366f1;">Add</span>
+        </a>
+        <a href="/challenges" class={`nav-link ${activeNav === 'challenges' ? 'active' : ''}`}>
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          <span>Challenges</span>
+        </a>
+        <a href="/settings" class={`nav-link ${activeNav === 'settings' ? 'active' : ''}`}>
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          <span>Settings</span>
+        </a>
+      </div>
+    </nav>
+  )}
+
+  <!-- Dark mode script -->
+  <script is:inline>
+    const themeToggle = document.getElementById('theme-toggle');
+    const html = document.documentElement;
+    const moonIcon = document.getElementById('icon-moon');
+    const sunIcon = document.getElementById('icon-sun');
+
+    function applyTheme(dark) {
+      if (dark) {
+        html.classList.add('dark');
+        if (moonIcon) moonIcon.classList.add('hidden');
+        if (sunIcon) sunIcon.classList.remove('hidden');
+      } else {
+        html.classList.remove('dark');
+        if (moonIcon) moonIcon.classList.remove('hidden');
+        if (sunIcon) sunIcon.classList.add('hidden');
+      }
+    }
+
+    const saved = localStorage.getItem('kt_darkMode');
+    if (saved !== null) {
+      applyTheme(saved === 'true');
+    } else {
+      applyTheme(window.matchMedia('(prefers-color-scheme: dark)').matches);
+    }
+
+    if (themeToggle) {
+      themeToggle.addEventListener('click', () => {
+        const isDark = html.classList.toggle('dark');
+        localStorage.setItem('kt_darkMode', String(isDark));
+        applyTheme(isDark);
+      });
+    }
+  </script>
+
+  <!-- Register service worker for PWA -->
+  <script is:inline>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
+    }
+  </script>
+</body>
+</html>

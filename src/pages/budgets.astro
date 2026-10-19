@@ -1,0 +1,613 @@
+---
+import Layout from '../layouts/Layout.astro';
+import AdUnit from '../components/AdUnit.astro';
+---
+<Layout title="Budget Manager - KharchaTracker" activeNav="home">
+
+  <!-- Budget Overview -->
+  <div class="card mb-4">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="font-semibold">Monthly Budget Overview</h2>
+      <span id="budget-month" class="text-xs" style="color: var(--color-text-muted);"></span>
+    </div>
+    <div class="grid grid-cols-2 gap-3 mb-3">
+      <div class="rounded-xl p-3 text-center" style="background: var(--color-surface-alt);">
+        <p class="text-xs" style="color: var(--color-text-muted);">Total Budget</p>
+        <p id="total-budget" class="text-xl font-bold text-indigo-500">₹0</p>
+      </div>
+      <div class="rounded-xl p-3 text-center" style="background: var(--color-surface-alt);">
+        <p class="text-xs" style="color: var(--color-text-muted);">Total Spent</p>
+        <p id="total-spent" class="text-xl font-bold text-red-500">₹0</p>
+      </div>
+    </div>
+    <!-- Overall progress bar -->
+    <div class="mb-1">
+      <div class="flex justify-between text-xs mb-1" style="color: var(--color-text-muted);">
+        <span id="overall-pct-label">0% used</span>
+        <span id="overall-remaining-label">₹0 remaining</span>
+      </div>
+      <div class="w-full rounded-full h-3" style="background: var(--color-surface-alt);">
+        <div id="overall-progress" class="bg-indigo-500 h-3 rounded-full transition-all duration-500" style="width: 0%"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Budget Alerts -->
+  <div id="budget-alerts" class="space-y-2 mb-4"></div>
+
+  <AdUnit />
+
+  <!-- Visual Comparison: Bar Chart -->
+  <div class="card mb-4">
+    <h2 class="font-semibold mb-3">Budget vs Spending</h2>
+    <div id="bar-chart" class="space-y-3"></div>
+    <div id="no-budget-chart" class="hidden text-center py-6" style="color: var(--color-text-muted);">
+      <p class="text-2xl mb-2">📊</p>
+      <p class="text-sm">Add budgets to see the comparison chart</p>
+    </div>
+  </div>
+
+  <!-- Category Budgets List -->
+  <div class="mb-4">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="font-semibold">Category Budgets</h2>
+      <button id="toggle-add-budget" class="btn-primary text-xs" style="padding: 0.375rem 0.75rem;">+ Add Budget</button>
+    </div>
+
+    <!-- Add Budget Form -->
+    <div id="add-budget-form" class="hidden card mb-4">
+      <h3 class="font-medium text-sm mb-3">New Budget</h3>
+      <div class="space-y-3">
+        <div>
+          <label class="text-xs mb-1 block" style="color: var(--color-text-muted);">Category</label>
+          <select id="budget-category" class="input-field text-sm"></select>
+        </div>
+        <div>
+          <label class="text-xs mb-1 block" style="color: var(--color-text-muted);">Limit Amount (₹)</label>
+          <input id="budget-limit" type="number" inputmode="numeric" placeholder="5000" class="input-field" min="1" />
+        </div>
+        <div>
+          <label class="text-xs mb-1 block" style="color: var(--color-text-muted);">Period</label>
+          <div class="flex gap-2">
+            <button class="period-btn btn-secondary text-sm flex-1" style="padding-top: 0.5rem; padding-bottom: 0.5rem;" data-period="weekly">Weekly</button>
+            <button class="period-btn btn-secondary text-sm flex-1" style="padding-top: 0.5rem; padding-bottom: 0.5rem; background: #6366f1; color: white;" data-period="monthly">Monthly</button>
+            <button class="period-btn btn-secondary text-sm flex-1" style="padding-top: 0.5rem; padding-bottom: 0.5rem;" data-period="yearly">Yearly</button>
+          </div>
+          <input id="selected-period" type="hidden" value="monthly" />
+        </div>
+        <div class="flex gap-2">
+          <button id="save-budget-btn" class="btn-primary flex-1 font-semibold" style="padding-top: 0.625rem; padding-bottom: 0.625rem;">Save Budget</button>
+          <button id="cancel-budget-btn" class="btn-secondary" style="padding-top: 0.625rem; padding-bottom: 0.625rem;">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Budget Items -->
+    <div id="budget-list" class="space-y-3"></div>
+
+    <!-- Empty state for budgets -->
+    <div id="empty-budgets" class="hidden card text-center py-8">
+      <p class="text-3xl mb-2">🎯</p>
+      <h3 class="font-semibold mb-1">No Budgets Set</h3>
+      <p class="text-sm mb-3" style="color: var(--color-text-muted);">Set category budgets to control your spending</p>
+    </div>
+  </div>
+
+  <AdUnit />
+
+  <!-- Suggested Budgets (50-30-20 Rule) -->
+  <div class="card mb-4">
+    <div class="flex items-center gap-2 mb-3">
+      <span class="text-xl">💡</span>
+      <h2 class="font-semibold">Suggested Budgets</h2>
+    </div>
+    <p class="text-xs mb-3" style="color: var(--color-text-muted);">Based on the 50-30-20 rule and your income</p>
+
+    <div id="suggestions-container">
+      <div id="no-income-msg" class="hidden text-center py-4" style="color: var(--color-text-muted);">
+        <p class="text-sm">Set your monthly income in <a href="/settings" class="text-indigo-500 hover:underline">Settings</a> to get personalized budget suggestions.</p>
+      </div>
+      <div id="suggestions-list" class="space-y-3"></div>
+    </div>
+
+    <div class="mt-4 p-3 rounded-xl border" style="background: var(--color-surface-alt); border-color: var(--color-border);">
+      <p class="text-xs font-semibold mb-2">The 50-30-20 Rule</p>
+      <div class="space-y-1.5">
+        <div class="flex items-center gap-2">
+          <span class="w-3 h-3 rounded-full bg-emerald-500 flex-shrink-0"></span>
+          <span class="text-xs" style="color: var(--color-text-muted);"><strong>50% Needs</strong> — Rent, bills, groceries, transport</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="w-3 h-3 rounded-full bg-amber-500 flex-shrink-0"></span>
+          <span class="text-xs" style="color: var(--color-text-muted);"><strong>30% Wants</strong> — Entertainment, shopping, dining out</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="w-3 h-3 rounded-full bg-indigo-500 flex-shrink-0"></span>
+          <span class="text-xs" style="color: var(--color-text-muted);"><strong>20% Savings</strong> — Investments, emergency fund, goals</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Budget Modal -->
+  <div id="edit-budget-modal" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 px-4 pb-4">
+    <div class="card max-w-md w-full">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-bold text-lg">Edit Budget</h3>
+        <button id="close-edit-budget" class="p-1 rounded-lg" onmouseover="this.style.background='var(--color-surface-alt)'" onmouseout="this.style.background=''">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <input id="edit-budget-id" type="hidden" />
+      <div class="space-y-3">
+        <div>
+          <label class="text-xs mb-1 block" style="color: var(--color-text-muted);">Category</label>
+          <input id="edit-budget-category" type="text" class="input-field text-sm" disabled />
+        </div>
+        <div>
+          <label class="text-xs mb-1 block" style="color: var(--color-text-muted);">Limit Amount (₹)</label>
+          <input id="edit-budget-limit" type="number" inputmode="numeric" class="input-field" min="1" />
+        </div>
+        <div>
+          <label class="text-xs mb-1 block" style="color: var(--color-text-muted);">Period</label>
+          <select id="edit-budget-period" class="input-field text-sm">
+            <option value="weekly">Weekly</option>
+            <option value="monthly">Monthly</option>
+            <option value="yearly">Yearly</option>
+          </select>
+        </div>
+        <button id="save-edit-budget-btn" class="btn-primary w-full font-semibold" style="padding-top: 0.75rem; padding-bottom: 0.75rem;">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+</Layout>
+
+<script>
+  const CATEGORY_ICONS: Record<string, string> = {
+    'Food & Dining': '🍔', 'Transport': '🚗', 'Shopping': '🛍️',
+    'Bills & Utilities': '💡', 'Entertainment': '🎬', 'Health': '🏥',
+    'Education': '📚', 'Rent & Housing': '🏠', 'Subscriptions': '📱',
+    'Personal Care': '💆', 'Investments': '📈', 'Other': '📌',
+  };
+
+  const NEEDS_CATEGORIES = ['Food & Dining', 'Transport', 'Bills & Utilities', 'Rent & Housing', 'Health', 'Education'];
+  const WANTS_CATEGORIES = ['Shopping', 'Entertainment', 'Personal Care', 'Subscriptions'];
+  const SAVINGS_CATEGORIES = ['Investments'];
+
+  interface Budget {
+    id: string;
+    category: string;
+    limit: number;
+    period: 'weekly' | 'monthly' | 'yearly';
+    createdAt: string;
+  }
+
+  interface Expense {
+    id: string;
+    amount: number;
+    category: string;
+    date: string;
+    type: 'expense' | 'income';
+  }
+
+  function formatINR(amount: number): string {
+    return '₹' + amount.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  }
+
+  function getBudgets(): Budget[] {
+    try { return JSON.parse(localStorage.getItem('kt_budgets') || '[]'); }
+    catch { return []; }
+  }
+
+  function getExpenses(): Expense[] {
+    try { return JSON.parse(localStorage.getItem('kt_expenses') || '[]'); }
+    catch { return []; }
+  }
+
+  function getSettings(): any {
+    try { return JSON.parse(localStorage.getItem('kt_settings') || '{}'); }
+    catch { return {}; }
+  }
+
+  function showToast(message: string, type: 'success' | 'error') {
+    const toast = document.createElement('div');
+    toast.className = `toast ${type === 'success' ? 'bg-emerald-500' : 'bg-red-500'}`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+  }
+
+  function getThisMonthExpenses(): Expense[] {
+    const now = new Date();
+    return getExpenses().filter(e => {
+      const d = new Date(e.date);
+      return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear() && e.type === 'expense';
+    });
+  }
+
+  function getCategorySpent(category: string): number {
+    return getThisMonthExpenses().filter(e => e.category === category).reduce((s, e) => s + e.amount, 0);
+  }
+
+  function init() {
+    // Month label
+    const now = new Date();
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    document.getElementById('budget-month')!.textContent = `${monthNames[now.getMonth()]} ${now.getFullYear()}`;
+
+    // Toggle add form
+    const addForm = document.getElementById('add-budget-form')!;
+    document.getElementById('toggle-add-budget')!.addEventListener('click', () => {
+      addForm.classList.toggle('hidden');
+    });
+    document.getElementById('cancel-budget-btn')!.addEventListener('click', () => {
+      addForm.classList.add('hidden');
+    });
+
+    // Populate category dropdown
+    populateCategoryDropdown();
+
+    // Period buttons
+    document.querySelectorAll('.period-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.period-btn').forEach(b => {
+          b.className = 'period-btn btn-secondary text-sm flex-1';
+          (b as HTMLElement).style.cssText = 'padding-top: 0.5rem; padding-bottom: 0.5rem;';
+        });
+        (btn as HTMLElement).className = 'period-btn btn-secondary text-sm flex-1';
+        (btn as HTMLElement).style.cssText = 'padding-top: 0.5rem; padding-bottom: 0.5rem; background: #6366f1; color: white;';
+        (document.getElementById('selected-period') as HTMLInputElement).value = (btn as HTMLElement).dataset.period || 'monthly';
+      });
+    });
+
+    // Save budget
+    document.getElementById('save-budget-btn')!.addEventListener('click', saveBudget);
+
+    // Edit modal
+    const editModal = document.getElementById('edit-budget-modal')!;
+    document.getElementById('close-edit-budget')!.addEventListener('click', () => {
+      editModal.classList.add('hidden');
+    });
+    editModal.addEventListener('click', (e) => {
+      if (e.target === editModal) editModal.classList.add('hidden');
+    });
+    document.getElementById('save-edit-budget-btn')!.addEventListener('click', saveEditBudget);
+
+    renderAll();
+  }
+
+  function populateCategoryDropdown() {
+    const select = document.getElementById('budget-category') as HTMLSelectElement;
+    const cats = Object.keys(CATEGORY_ICONS);
+    const settings = getSettings();
+    if (settings.categories) {
+      settings.categories.forEach((c: { name: string }) => {
+        if (!cats.includes(c.name)) cats.push(c.name);
+      });
+    }
+    select.innerHTML = cats.map(c => `<option value="${c}">${CATEGORY_ICONS[c] || '📌'} ${c}</option>`).join('');
+  }
+
+  function renderAll() {
+    renderOverview();
+    renderBudgetList();
+    renderAlerts();
+    renderBarChart();
+    renderSuggestions();
+  }
+
+  function renderOverview() {
+    const budgets = getBudgets();
+    const totalBudget = budgets.filter(b => b.period === 'monthly').reduce((s, b) => s + b.limit, 0)
+      + budgets.filter(b => b.period === 'weekly').reduce((s, b) => s + b.limit * 4, 0)
+      + budgets.filter(b => b.period === 'yearly').reduce((s, b) => s + b.limit / 12, 0);
+
+    const totalSpent = getThisMonthExpenses().reduce((s, e) => s + e.amount, 0);
+    const pct = totalBudget > 0 ? Math.min(100, Math.round((totalSpent / totalBudget) * 100)) : 0;
+    const remaining = Math.max(0, totalBudget - totalSpent);
+
+    document.getElementById('total-budget')!.textContent = formatINR(Math.round(totalBudget));
+    document.getElementById('total-spent')!.textContent = formatINR(totalSpent);
+    document.getElementById('overall-pct-label')!.textContent = `${pct}% used`;
+    document.getElementById('overall-remaining-label')!.textContent = `${formatINR(Math.round(remaining))} remaining`;
+
+    const progressBar = document.getElementById('overall-progress')!;
+    progressBar.style.width = `${pct}%`;
+    progressBar.className = `h-3 rounded-full transition-all duration-500 ${pct >= 100 ? 'bg-red-500' : pct >= 80 ? 'bg-amber-500' : 'bg-indigo-500'}`;
+  }
+
+  function renderBudgetList() {
+    const budgets = getBudgets();
+    const listEl = document.getElementById('budget-list')!;
+    const emptyEl = document.getElementById('empty-budgets')!;
+
+    if (budgets.length === 0) {
+      listEl.innerHTML = '';
+      emptyEl.classList.remove('hidden');
+      return;
+    }
+
+    emptyEl.classList.add('hidden');
+
+    listEl.innerHTML = budgets.map(b => {
+      const spent = getCategorySpent(b.category);
+      const pct = Math.min(100, Math.round((spent / b.limit) * 100));
+      const barColor = pct >= 100 ? 'bg-red-500' : pct >= 80 ? 'bg-amber-500' : 'bg-emerald-500';
+      const icon = CATEGORY_ICONS[b.category] || '📌';
+      const periodLabel = b.period.charAt(0).toUpperCase() + b.period.slice(1);
+
+      return `
+        <div class="card" style="padding: 1rem;">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-2">
+              <span class="text-xl">${icon}</span>
+              <div>
+                <p class="font-medium text-sm">${b.category}</p>
+                <p class="text-xs" style="color: var(--color-text-muted);">${periodLabel}</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-1">
+              <button class="edit-budget-btn p-1.5 rounded-lg transition-colors" onmouseover="this.style.background='var(--color-surface-alt)'" onmouseout="this.style.background=''" data-id="${b.id}" aria-label="Edit budget">
+                <svg class="w-4 h-4 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+              </button>
+              <button class="delete-budget-btn p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950 transition-colors" data-id="${b.id}" aria-label="Delete budget">
+                <svg class="w-4 h-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="flex justify-between text-xs mb-1" style="color: var(--color-text-muted);">
+            <span>${formatINR(spent)} spent</span>
+            <span>${formatINR(b.limit)} limit</span>
+          </div>
+          <div class="w-full rounded-full h-2.5" style="background: var(--color-surface-alt);">
+            <div class="${barColor} h-2.5 rounded-full transition-all duration-500" style="width: ${pct}%"></div>
+          </div>
+          <p class="text-xs mt-1 ${pct >= 100 ? 'text-red-500 font-semibold' : pct >= 80 ? 'text-amber-500' : 'text-emerald-500'}">
+            ${pct >= 100 ? `Over budget by ${formatINR(spent - b.limit)}` : `${pct}% used — ${formatINR(b.limit - spent)} left`}
+          </p>
+        </div>
+      `;
+    }).join('');
+
+    // Edit handlers
+    listEl.querySelectorAll('.edit-budget-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        openEditBudget((btn as HTMLElement).dataset.id!);
+      });
+    });
+
+    // Delete handlers
+    listEl.querySelectorAll('.delete-budget-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (confirm('Delete this budget?')) {
+          const budgets = getBudgets().filter(b => b.id !== (btn as HTMLElement).dataset.id);
+          localStorage.setItem('kt_budgets', JSON.stringify(budgets));
+          showToast('Budget deleted', 'success');
+          renderAll();
+        }
+      });
+    });
+  }
+
+  function renderAlerts() {
+    const budgets = getBudgets();
+    const alertsEl = document.getElementById('budget-alerts')!;
+    const alerts: string[] = [];
+
+    budgets.forEach(b => {
+      const spent = getCategorySpent(b.category);
+      const pct = Math.round((spent / b.limit) * 100);
+      const icon = CATEGORY_ICONS[b.category] || '📌';
+
+      if (pct >= 100) {
+        alerts.push(`
+          <div class="card border-l-4 border-l-red-500 flex items-start gap-3" style="padding: 0.75rem;">
+            <span class="text-xl">🚨</span>
+            <div>
+              <p class="font-medium text-sm text-red-600 dark:text-red-400">${icon} ${b.category} — Budget Exceeded!</p>
+              <p class="text-xs" style="color: var(--color-text-muted);">You've spent ${formatINR(spent)} of your ${formatINR(b.limit)} budget (${pct}%)</p>
+            </div>
+          </div>
+        `);
+      } else if (pct >= 80) {
+        alerts.push(`
+          <div class="card border-l-4 border-l-amber-500 flex items-start gap-3" style="padding: 0.75rem;">
+            <span class="text-xl">⚠️</span>
+            <div>
+              <p class="font-medium text-sm text-amber-600 dark:text-amber-400">${icon} ${b.category} — Almost at Limit</p>
+              <p class="text-xs" style="color: var(--color-text-muted);">${pct}% used. Only ${formatINR(b.limit - spent)} remaining</p>
+            </div>
+          </div>
+        `);
+      }
+    });
+
+    alertsEl.innerHTML = alerts.join('');
+  }
+
+  function renderBarChart() {
+    const budgets = getBudgets();
+    const chartEl = document.getElementById('bar-chart')!;
+    const noChartEl = document.getElementById('no-budget-chart')!;
+
+    if (budgets.length === 0) {
+      chartEl.innerHTML = '';
+      noChartEl.classList.remove('hidden');
+      return;
+    }
+    noChartEl.classList.add('hidden');
+
+    const maxVal = Math.max(...budgets.map(b => Math.max(b.limit, getCategorySpent(b.category))));
+
+    chartEl.innerHTML = budgets.map(b => {
+      const spent = getCategorySpent(b.category);
+      const budgetPct = maxVal > 0 ? Math.round((b.limit / maxVal) * 100) : 0;
+      const spentPct = maxVal > 0 ? Math.round((spent / maxVal) * 100) : 0;
+      const icon = CATEGORY_ICONS[b.category] || '📌';
+      const isOver = spent > b.limit;
+
+      return `
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-xs font-medium">${icon} ${b.category}</span>
+            <span class="text-xs" style="color: var(--color-text-muted);">${formatINR(spent)} / ${formatINR(b.limit)}</span>
+          </div>
+          <div class="space-y-1">
+            <div class="flex items-center gap-2">
+              <span class="text-[10px] w-10" style="color: var(--color-text-muted);">Budget</span>
+              <div class="flex-1 rounded-full h-2" style="background: var(--color-surface-alt);">
+                <div class="bg-indigo-400 h-2 rounded-full" style="width: ${budgetPct}%"></div>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-[10px] w-10" style="color: var(--color-text-muted);">Spent</span>
+              <div class="flex-1 rounded-full h-2" style="background: var(--color-surface-alt);">
+                <div class="${isOver ? 'bg-red-500' : 'bg-emerald-500'} h-2 rounded-full" style="width: ${Math.min(100, spentPct)}%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function renderSuggestions() {
+    const settings = getSettings();
+    const income = settings.monthlyIncome || 0;
+    const noIncomeMsg = document.getElementById('no-income-msg')!;
+    const suggestionsEl = document.getElementById('suggestions-list')!;
+
+    if (!income || income <= 0) {
+      noIncomeMsg.classList.remove('hidden');
+      suggestionsEl.innerHTML = '';
+      return;
+    }
+    noIncomeMsg.classList.add('hidden');
+
+    const needs = Math.round(income * 0.5);
+    const wants = Math.round(income * 0.3);
+    const savings = Math.round(income * 0.2);
+
+    // Calculate current spending by type
+    const monthExpenses = getThisMonthExpenses();
+    const needsSpent = monthExpenses.filter(e => NEEDS_CATEGORIES.includes(e.category)).reduce((s, e) => s + e.amount, 0);
+    const wantsSpent = monthExpenses.filter(e => WANTS_CATEGORIES.includes(e.category)).reduce((s, e) => s + e.amount, 0);
+    const savingsSpent = monthExpenses.filter(e => SAVINGS_CATEGORIES.includes(e.category)).reduce((s, e) => s + e.amount, 0);
+
+    const suggestions = [
+      {
+        label: 'Needs (50%)',
+        suggested: needs,
+        spent: needsSpent,
+        color: 'emerald',
+        categories: NEEDS_CATEGORIES.join(', '),
+      },
+      {
+        label: 'Wants (30%)',
+        suggested: wants,
+        spent: wantsSpent,
+        color: 'amber',
+        categories: WANTS_CATEGORIES.join(', '),
+      },
+      {
+        label: 'Savings (20%)',
+        suggested: savings,
+        spent: savingsSpent,
+        color: 'indigo',
+        categories: SAVINGS_CATEGORIES.join(', '),
+      },
+    ];
+
+    suggestionsEl.innerHTML = suggestions.map(s => {
+      const pct = s.suggested > 0 ? Math.min(100, Math.round((s.spent / s.suggested) * 100)) : 0;
+      return `
+        <div class="p-3 rounded-xl border" style="background: var(--color-surface-alt); border-color: var(--color-border);">
+          <div class="flex justify-between items-center mb-1">
+            <span class="text-sm font-medium">${s.label}</span>
+            <span class="text-xs" style="color: var(--color-text-muted);">${formatINR(s.spent)} / ${formatINR(s.suggested)}</span>
+          </div>
+          <div class="w-full rounded-full h-2 mb-1" style="background: var(--color-surface);">
+            <div class="bg-${s.color}-500 h-2 rounded-full transition-all" style="width: ${pct}%"></div>
+          </div>
+          <p class="text-[10px]" style="color: var(--color-text-muted);">${s.categories}</p>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function saveBudget() {
+    const category = (document.getElementById('budget-category') as HTMLSelectElement).value;
+    const limit = parseFloat((document.getElementById('budget-limit') as HTMLInputElement).value);
+    const period = (document.getElementById('selected-period') as HTMLInputElement).value as 'weekly' | 'monthly' | 'yearly';
+
+    if (!category) {
+      showToast('Please select a category', 'error');
+      return;
+    }
+    if (!limit || limit <= 0) {
+      showToast('Please enter a valid limit', 'error');
+      return;
+    }
+
+    const budgets = getBudgets();
+    if (budgets.some(b => b.category === category)) {
+      showToast('Budget for this category already exists. Edit it instead.', 'error');
+      return;
+    }
+
+    const newBudget: Budget = {
+      id: Date.now().toString(36) + Math.random().toString(36).substr(2, 9),
+      category,
+      limit,
+      period,
+      createdAt: new Date().toISOString(),
+    };
+
+    budgets.push(newBudget);
+    localStorage.setItem('kt_budgets', JSON.stringify(budgets));
+
+    (document.getElementById('budget-limit') as HTMLInputElement).value = '';
+    document.getElementById('add-budget-form')!.classList.add('hidden');
+    showToast('Budget added!', 'success');
+    renderAll();
+  }
+
+  function openEditBudget(id: string) {
+    const budgets = getBudgets();
+    const budget = budgets.find(b => b.id === id);
+    if (!budget) return;
+
+    (document.getElementById('edit-budget-id') as HTMLInputElement).value = id;
+    (document.getElementById('edit-budget-category') as HTMLInputElement).value = budget.category;
+    (document.getElementById('edit-budget-limit') as HTMLInputElement).value = String(budget.limit);
+    (document.getElementById('edit-budget-period') as HTMLSelectElement).value = budget.period;
+
+    document.getElementById('edit-budget-modal')!.classList.remove('hidden');
+  }
+
+  function saveEditBudget() {
+    const id = (document.getElementById('edit-budget-id') as HTMLInputElement).value;
+    const limit = parseFloat((document.getElementById('edit-budget-limit') as HTMLInputElement).value);
+    const period = (document.getElementById('edit-budget-period') as HTMLSelectElement).value as 'weekly' | 'monthly' | 'yearly';
+
+    if (!limit || limit <= 0) {
+      showToast('Please enter a valid limit', 'error');
+      return;
+    }
+
+    const budgets = getBudgets();
+    const idx = budgets.findIndex(b => b.id === id);
+    if (idx !== -1) {
+      budgets[idx].limit = limit;
+      budgets[idx].period = period;
+      localStorage.setItem('kt_budgets', JSON.stringify(budgets));
+      showToast('Budget updated!', 'success');
+      document.getElementById('edit-budget-modal')!.classList.add('hidden');
+      renderAll();
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', init);
+  document.addEventListener('astro:page-load', init);
+</script>

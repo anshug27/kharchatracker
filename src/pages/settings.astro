@@ -1,0 +1,524 @@
+---
+import Layout from '../layouts/Layout.astro';
+import AdUnit from '../components/AdUnit.astro';
+---
+<Layout title="Settings - KharchaTracker" activeNav="settings">
+
+  <!-- Monthly Income -->
+  <div class="card mb-4">
+    <div class="flex items-center gap-3 mb-3">
+      <span class="text-2xl">💰</span>
+      <div>
+        <h2 class="font-semibold">Monthly Income</h2>
+        <p class="text-xs" style="color: var(--color-text-muted);">Used for savings calculations</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="text-lg font-bold" style="color: var(--color-text-muted);">₹</span>
+      <input id="monthly-income" type="number" inputmode="numeric" placeholder="0" class="input-field" min="0" />
+    </div>
+    <button id="save-income-btn" class="btn-primary w-full mt-3 text-sm">Save Income</button>
+  </div>
+
+  <!-- Currency -->
+  <div class="card mb-4">
+    <div class="flex items-center gap-3 mb-3">
+      <span class="text-2xl">💱</span>
+      <div>
+        <h2 class="font-semibold">Currency</h2>
+        <p class="text-xs" style="color: var(--color-text-muted);">Select your preferred currency</p>
+      </div>
+    </div>
+    <select id="currency-select" class="input-field text-sm">
+      <option value="INR" data-symbol="₹">🇮🇳 INR - Indian Rupee (₹)</option>
+      <option value="USD" data-symbol="$">🇺🇸 USD - US Dollar ($)</option>
+      <option value="EUR" data-symbol="€">🇪🇺 EUR - Euro (€)</option>
+      <option value="GBP" data-symbol="£">🇬🇧 GBP - British Pound (£)</option>
+      <option value="JPY" data-symbol="¥">🇯🇵 JPY - Japanese Yen (¥)</option>
+      <option value="AED" data-symbol="د.إ">🇦🇪 AED - UAE Dirham (د.إ)</option>
+      <option value="CAD" data-symbol="C$">🇨🇦 CAD - Canadian Dollar (C$)</option>
+      <option value="AUD" data-symbol="A$">🇦🇺 AUD - Australian Dollar (A$)</option>
+    </select>
+  </div>
+
+  <AdUnit />
+
+  <!-- Category Manager -->
+  <div class="card mb-4">
+    <div class="flex items-center justify-between mb-3">
+      <div class="flex items-center gap-3">
+        <span class="text-2xl">📂</span>
+        <div>
+          <h2 class="font-semibold">Categories</h2>
+          <p class="text-xs" style="color: var(--color-text-muted);">Manage expense categories</p>
+        </div>
+      </div>
+      <button id="toggle-add-category" class="btn-secondary text-xs" style="padding: 0.375rem 0.75rem;">+ Add</button>
+    </div>
+
+    <!-- Add Category Form (hidden by default) -->
+    <div id="add-category-form" class="hidden mb-4 p-3 rounded-xl border" style="background: var(--color-surface-alt); border-color: var(--color-border);">
+      <div class="grid grid-cols-2 gap-2 mb-2">
+        <input id="new-cat-name" type="text" placeholder="Category name" class="input-field text-sm" style="padding-top: 0.5rem; padding-bottom: 0.5rem;" maxlength="30" />
+        <input id="new-cat-icon" type="text" placeholder="Emoji icon" class="input-field text-sm text-center" style="padding-top: 0.5rem; padding-bottom: 0.5rem;" maxlength="4" />
+      </div>
+      <div class="flex gap-2 mb-2">
+        <input id="new-cat-color" type="color" value="#6366f1" class="w-10 h-10 rounded-lg border cursor-pointer" style="border-color: var(--color-border);" />
+        <input id="new-cat-subs" type="text" placeholder="Subcategories (comma separated)" class="input-field text-sm flex-1" style="padding-top: 0.5rem; padding-bottom: 0.5rem;" />
+      </div>
+      <div class="flex gap-2">
+        <button id="save-category-btn" class="btn-primary text-sm flex-1" style="padding-top: 0.5rem; padding-bottom: 0.5rem;">Save Category</button>
+        <button id="cancel-category-btn" class="btn-secondary text-sm" style="padding-top: 0.5rem; padding-bottom: 0.5rem;">Cancel</button>
+      </div>
+    </div>
+
+    <!-- Category List -->
+    <div id="category-list" class="space-y-2 max-h-64 overflow-y-auto"></div>
+  </div>
+
+  <!-- Payment Methods Manager -->
+  <div class="card mb-4">
+    <div class="flex items-center justify-between mb-3">
+      <div class="flex items-center gap-3">
+        <span class="text-2xl">💳</span>
+        <div>
+          <h2 class="font-semibold">Payment Methods</h2>
+          <p class="text-xs" style="color: var(--color-text-muted);">Manage payment options</p>
+        </div>
+      </div>
+    </div>
+    <div id="payment-methods-list" class="flex flex-wrap gap-2 mb-3"></div>
+    <div class="flex gap-2">
+      <input id="new-payment-method" type="text" placeholder="Add payment method..." class="input-field text-sm flex-1" style="padding-top: 0.5rem; padding-bottom: 0.5rem;" maxlength="30" />
+      <button id="add-payment-btn" class="btn-primary text-sm" style="padding-top: 0.5rem; padding-bottom: 0.5rem;">Add</button>
+    </div>
+  </div>
+
+  <AdUnit />
+
+  <!-- Data Management -->
+  <div class="card mb-4">
+    <div class="flex items-center gap-3 mb-4">
+      <span class="text-2xl">📦</span>
+      <div>
+        <h2 class="font-semibold">Data Management</h2>
+        <p class="text-xs" style="color: var(--color-text-muted);">Backup, restore, or clear your data</p>
+      </div>
+    </div>
+
+    <div class="space-y-3">
+      <!-- Export Data -->
+      <button id="export-btn" class="w-full flex items-center gap-3 p-3 rounded-xl border transition-colors text-left" style="border-color: var(--color-border);" onmouseover="this.style.background='var(--color-surface-alt)'" onmouseout="this.style.background=''">
+        <span class="text-xl">📥</span>
+        <div>
+          <p class="text-sm font-medium">Export Data</p>
+          <p class="text-xs" style="color: var(--color-text-muted);">Download a JSON backup of all your data</p>
+        </div>
+      </button>
+
+      <!-- Import Data -->
+      <label class="w-full flex items-center gap-3 p-3 rounded-xl border transition-colors cursor-pointer" style="border-color: var(--color-border);" onmouseover="this.style.background='var(--color-surface-alt)'" onmouseout="this.style.background=''">
+        <span class="text-xl">📤</span>
+        <div>
+          <p class="text-sm font-medium">Import Data</p>
+          <p class="text-xs" style="color: var(--color-text-muted);">Restore from a JSON backup file</p>
+        </div>
+        <input id="import-input" type="file" accept=".json,application/json" class="hidden" />
+      </label>
+
+      <!-- Clear All Data -->
+      <button id="clear-data-btn" class="w-full flex items-center gap-3 p-3 rounded-xl border border-red-300 dark:border-red-800 hover:bg-red-50 dark:hover:bg-red-950 transition-colors text-left">
+        <span class="text-xl">🗑️</span>
+        <div>
+          <p class="text-sm font-medium text-red-600 dark:text-red-400">Clear All Data</p>
+          <p class="text-xs" style="color: var(--color-text-muted);">Permanently delete all expenses, budgets & settings</p>
+        </div>
+      </button>
+    </div>
+  </div>
+
+  <!-- Clear Confirmation Modal -->
+  <div id="clear-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+    <div class="card max-w-sm w-full text-center">
+      <span class="text-4xl block mb-3">⚠️</span>
+      <h3 class="font-bold text-lg mb-2">Clear All Data?</h3>
+      <p class="text-sm mb-4" style="color: var(--color-text-muted);">This action cannot be undone. All your expenses, budgets, goals, and settings will be permanently deleted.</p>
+      <div class="flex gap-3">
+        <button id="cancel-clear-btn" class="btn-secondary flex-1">Cancel</button>
+        <button id="confirm-clear-btn" class="btn-danger flex-1">Delete Everything</button>
+      </div>
+    </div>
+  </div>
+
+  <AdUnit />
+
+  <!-- App Info -->
+  <div class="card mb-4">
+    <div class="flex items-center gap-3 mb-4">
+      <span class="text-2xl">ℹ️</span>
+      <div>
+        <h2 class="font-semibold">About KharchaTracker</h2>
+        <p class="text-xs" style="color: var(--color-text-muted);">Smart Expense Manager</p>
+      </div>
+    </div>
+    <div class="space-y-3 text-sm">
+      <div class="flex justify-between items-center py-2 border-b" style="border-color: var(--color-border);">
+        <span style="color: var(--color-text-muted);">Version</span>
+        <span class="font-medium">1.0.0</span>
+      </div>
+      <div class="flex justify-between items-center py-2 border-b" style="border-color: var(--color-border);">
+        <span style="color: var(--color-text-muted);">Developer</span>
+        <span class="font-medium">KharchaTracker Team</span>
+      </div>
+      <p class="text-xs pt-1" style="color: var(--color-text-muted);">
+        KharchaTracker is a free, privacy-first expense manager. All your data stays on your device — nothing is uploaded to any server.
+      </p>
+    </div>
+  </div>
+
+  <!-- Rate & Share -->
+  <div class="card mb-4">
+    <div class="space-y-3">
+      <a href="https://www.google.com/search?q=KharchaTracker+expense+manager+review" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 p-3 rounded-xl border transition-colors" style="border-color: var(--color-border);" onmouseover="this.style.background='var(--color-surface-alt)'" onmouseout="this.style.background=''">
+        <span class="text-xl">⭐</span>
+        <div>
+          <p class="text-sm font-medium">Rate This App</p>
+          <p class="text-xs" style="color: var(--color-text-muted);">Love KharchaTracker? Let others know!</p>
+        </div>
+      </a>
+      <button id="share-btn" class="w-full flex items-center gap-3 p-3 rounded-xl border transition-colors text-left" style="border-color: var(--color-border);" onmouseover="this.style.background='var(--color-surface-alt)'" onmouseout="this.style.background=''">
+        <span class="text-xl">📤</span>
+        <div>
+          <p class="text-sm font-medium">Share with Friends</p>
+          <p class="text-xs" style="color: var(--color-text-muted);">Help your friends manage expenses better</p>
+        </div>
+      </button>
+    </div>
+  </div>
+
+  <!-- Legal Links -->
+  <div class="card mb-4">
+    <div class="space-y-1">
+      <a href="/privacy" class="flex items-center justify-between py-3 border-b hover:text-indigo-500 transition-colors" style="border-color: var(--color-border);">
+        <span class="text-sm">Privacy Policy</span>
+        <svg class="w-4 h-4" style="color: var(--color-text-muted);" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+      </a>
+      <a href="/terms" class="flex items-center justify-between py-3 hover:text-indigo-500 transition-colors">
+        <span class="text-sm">Terms of Service</span>
+        <svg class="w-4 h-4" style="color: var(--color-text-muted);" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+  </div>
+
+  <p class="text-center text-xs mb-6" style="color: var(--color-text-muted);">Made with ❤️ in India</p>
+
+</Layout>
+
+<script>
+  const DEFAULT_CATEGORIES = [
+    { name: 'Food & Dining', icon: '🍔', color: '#f59e0b', subcategories: ['Groceries', 'Restaurants', 'Cafe', 'Street Food', 'Delivery'] },
+    { name: 'Transport', icon: '🚗', color: '#3b82f6', subcategories: ['Fuel', 'Auto/Cab', 'Metro/Bus', 'Parking', 'Maintenance'] },
+    { name: 'Shopping', icon: '🛍️', color: '#ec4899', subcategories: ['Clothes', 'Electronics', 'Home', 'Gifts', 'Online'] },
+    { name: 'Bills & Utilities', icon: '💡', color: '#8b5cf6', subcategories: ['Electricity', 'Water', 'Gas', 'Internet', 'Phone'] },
+    { name: 'Entertainment', icon: '🎬', color: '#ef4444', subcategories: ['Movies', 'Streaming', 'Games', 'Events', 'Hobbies'] },
+    { name: 'Health', icon: '🏥', color: '#10b981', subcategories: ['Medicine', 'Doctor', 'Gym', 'Insurance'] },
+    { name: 'Education', icon: '📚', color: '#6366f1', subcategories: ['Courses', 'Books', 'Tuition', 'Supplies'] },
+    { name: 'Rent & Housing', icon: '🏠', color: '#f97316', subcategories: ['Rent', 'Maintenance', 'Furniture', 'Cleaning'] },
+    { name: 'Subscriptions', icon: '📱', color: '#14b8a6', subcategories: ['Netflix', 'Spotify', 'Apps', 'Newspapers'] },
+    { name: 'Personal Care', icon: '💆', color: '#d946ef', subcategories: ['Salon', 'Skincare', 'Grooming'] },
+    { name: 'Investments', icon: '📈', color: '#059669', subcategories: ['SIP', 'Stocks', 'FD', 'Gold', 'Crypto'] },
+    { name: 'Other', icon: '📌', color: '#64748b', subcategories: ['Miscellaneous'] },
+  ];
+
+  const DEFAULT_PAYMENT_METHODS = ['Cash', 'UPI', 'Credit Card', 'Debit Card', 'Net Banking', 'Wallet'];
+
+  interface CategoryConfig {
+    name: string;
+    icon: string;
+    color: string;
+    subcategories?: string[];
+  }
+
+  interface UserSettings {
+    currency: string;
+    currencySymbol: string;
+    darkMode: boolean;
+    categories: CategoryConfig[];
+    paymentMethods: string[];
+    monthlyIncome?: number;
+  }
+
+  function getSettings(): UserSettings {
+    try {
+      const raw = localStorage.getItem('kt_settings');
+      return raw ? JSON.parse(raw) : {
+        currency: 'INR',
+        currencySymbol: '₹',
+        darkMode: false,
+        categories: DEFAULT_CATEGORIES,
+        paymentMethods: DEFAULT_PAYMENT_METHODS,
+        monthlyIncome: 0,
+      };
+    } catch {
+      return {
+        currency: 'INR',
+        currencySymbol: '₹',
+        darkMode: false,
+        categories: DEFAULT_CATEGORIES,
+        paymentMethods: DEFAULT_PAYMENT_METHODS,
+        monthlyIncome: 0,
+      };
+    }
+  }
+
+  function saveSettings(settings: UserSettings): void {
+    localStorage.setItem('kt_settings', JSON.stringify(settings));
+  }
+
+  function showToast(message: string, type: 'success' | 'error') {
+    const toast = document.createElement('div');
+    toast.className = `toast ${type === 'success' ? 'bg-emerald-500' : 'bg-red-500'}`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+  }
+
+  function init() {
+    const settings = getSettings();
+
+    // --- Monthly Income ---
+    const incomeInput = document.getElementById('monthly-income') as HTMLInputElement;
+    incomeInput.value = settings.monthlyIncome ? String(settings.monthlyIncome) : '';
+
+    document.getElementById('save-income-btn')!.addEventListener('click', () => {
+      const s = getSettings();
+      s.monthlyIncome = parseFloat(incomeInput.value) || 0;
+      saveSettings(s);
+      showToast('Monthly income saved!', 'success');
+    });
+
+    // --- Currency ---
+    const currencySelect = document.getElementById('currency-select') as HTMLSelectElement;
+    currencySelect.value = settings.currency || 'INR';
+
+    currencySelect.addEventListener('change', () => {
+      const s = getSettings();
+      const selected = currencySelect.options[currencySelect.selectedIndex];
+      s.currency = currencySelect.value;
+      s.currencySymbol = selected.dataset.symbol || '₹';
+      saveSettings(s);
+      showToast(`Currency set to ${s.currency}`, 'success');
+    });
+
+    // --- Category Manager ---
+    renderCategories();
+
+    const addCatForm = document.getElementById('add-category-form')!;
+    document.getElementById('toggle-add-category')!.addEventListener('click', () => {
+      addCatForm.classList.toggle('hidden');
+    });
+    document.getElementById('cancel-category-btn')!.addEventListener('click', () => {
+      addCatForm.classList.add('hidden');
+    });
+
+    document.getElementById('save-category-btn')!.addEventListener('click', () => {
+      const name = (document.getElementById('new-cat-name') as HTMLInputElement).value.trim();
+      const icon = (document.getElementById('new-cat-icon') as HTMLInputElement).value.trim() || '📌';
+      const color = (document.getElementById('new-cat-color') as HTMLInputElement).value;
+      const subsRaw = (document.getElementById('new-cat-subs') as HTMLInputElement).value.trim();
+      const subcategories = subsRaw ? subsRaw.split(',').map(s => s.trim()).filter(Boolean) : [];
+
+      if (!name) {
+        showToast('Please enter a category name', 'error');
+        return;
+      }
+
+      const s = getSettings();
+      if (s.categories.some(c => c.name.toLowerCase() === name.toLowerCase())) {
+        showToast('Category already exists', 'error');
+        return;
+      }
+
+      s.categories.push({ name, icon, color, subcategories });
+      saveSettings(s);
+      renderCategories();
+      addCatForm.classList.add('hidden');
+      (document.getElementById('new-cat-name') as HTMLInputElement).value = '';
+      (document.getElementById('new-cat-icon') as HTMLInputElement).value = '';
+      (document.getElementById('new-cat-subs') as HTMLInputElement).value = '';
+      showToast('Category added!', 'success');
+    });
+
+    // --- Payment Methods ---
+    renderPaymentMethods();
+
+    document.getElementById('add-payment-btn')!.addEventListener('click', () => {
+      const input = document.getElementById('new-payment-method') as HTMLInputElement;
+      const val = input.value.trim();
+      if (!val) return;
+      const s = getSettings();
+      if (s.paymentMethods.some(p => p.toLowerCase() === val.toLowerCase())) {
+        showToast('Payment method already exists', 'error');
+        return;
+      }
+      s.paymentMethods.push(val);
+      saveSettings(s);
+      renderPaymentMethods();
+      input.value = '';
+      showToast('Payment method added!', 'success');
+    });
+
+    (document.getElementById('new-payment-method') as HTMLInputElement).addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        document.getElementById('add-payment-btn')!.click();
+      }
+    });
+
+    // --- Export Data ---
+    document.getElementById('export-btn')!.addEventListener('click', () => {
+      const data = JSON.stringify({
+        expenses: JSON.parse(localStorage.getItem('kt_expenses') || '[]'),
+        budgets: JSON.parse(localStorage.getItem('kt_budgets') || '[]'),
+        challenges: JSON.parse(localStorage.getItem('kt_challenges') || '[]'),
+        goals: JSON.parse(localStorage.getItem('kt_goals') || '[]'),
+        settings: getSettings(),
+        exportedAt: new Date().toISOString(),
+      }, null, 2);
+
+      const blob = new Blob([data], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `kharchatracker-backup-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast('Data exported successfully!', 'success');
+    });
+
+    // --- Import Data ---
+    document.getElementById('import-input')!.addEventListener('change', (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const data = JSON.parse(event.target?.result as string);
+          if (data.expenses) localStorage.setItem('kt_expenses', JSON.stringify(data.expenses));
+          if (data.budgets) localStorage.setItem('kt_budgets', JSON.stringify(data.budgets));
+          if (data.challenges) localStorage.setItem('kt_challenges', JSON.stringify(data.challenges));
+          if (data.goals) localStorage.setItem('kt_goals', JSON.stringify(data.goals));
+          if (data.settings) localStorage.setItem('kt_settings', JSON.stringify(data.settings));
+          showToast('Data imported successfully! Refreshing...', 'success');
+          setTimeout(() => location.reload(), 1500);
+        } catch {
+          showToast('Invalid backup file', 'error');
+        }
+      };
+      reader.readAsText(file);
+    });
+
+    // --- Clear All Data ---
+    const clearModal = document.getElementById('clear-modal')!;
+    document.getElementById('clear-data-btn')!.addEventListener('click', () => {
+      clearModal.classList.remove('hidden');
+    });
+    document.getElementById('cancel-clear-btn')!.addEventListener('click', () => {
+      clearModal.classList.add('hidden');
+    });
+    clearModal.addEventListener('click', (e) => {
+      if (e.target === clearModal) clearModal.classList.add('hidden');
+    });
+    document.getElementById('confirm-clear-btn')!.addEventListener('click', () => {
+      localStorage.removeItem('kt_expenses');
+      localStorage.removeItem('kt_budgets');
+      localStorage.removeItem('kt_challenges');
+      localStorage.removeItem('kt_goals');
+      localStorage.removeItem('kt_settings');
+      localStorage.removeItem('kt_darkMode');
+      clearModal.classList.add('hidden');
+      showToast('All data cleared!', 'success');
+      setTimeout(() => location.reload(), 1500);
+    });
+
+    // --- Share ---
+    document.getElementById('share-btn')!.addEventListener('click', () => {
+      const shareData = {
+        title: 'KharchaTracker - Smart Expense Manager',
+        text: 'Track your daily expenses, get spending insights, and save money with KharchaTracker!',
+        url: window.location.origin,
+      };
+      if (navigator.share) {
+        navigator.share(shareData).catch(() => {});
+      } else {
+        navigator.clipboard.writeText(`${shareData.text} ${shareData.url}`).then(() => {
+          showToast('Link copied to clipboard!', 'success');
+        }).catch(() => {
+          showToast('Could not share', 'error');
+        });
+      }
+    });
+  }
+
+  function renderCategories() {
+    const settings = getSettings();
+    const list = document.getElementById('category-list')!;
+
+    list.innerHTML = settings.categories.map((cat, i) => `
+      <div class="flex items-center gap-3 p-2 rounded-xl transition-colors group" onmouseover="this.style.background='var(--color-surface-alt)'" onmouseout="this.style.background=''">
+        <span class="text-xl w-8 text-center">${cat.icon}</span>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium truncate">${cat.name}</p>
+          ${cat.subcategories && cat.subcategories.length > 0 ? `<p class="text-xs truncate" style="color: var(--color-text-muted);">${cat.subcategories.join(', ')}</p>` : ''}
+        </div>
+        <span class="w-4 h-4 rounded-full flex-shrink-0" style="background-color: ${cat.color}"></span>
+        <button class="delete-cat-btn opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-700 transition-opacity p-1" data-index="${i}" aria-label="Remove category">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+        </button>
+      </div>
+    `).join('');
+
+    list.querySelectorAll('.delete-cat-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt((btn as HTMLElement).dataset.index || '0');
+        const s = getSettings();
+        const catName = s.categories[idx]?.name;
+        if (confirm(`Remove "${catName}" category?`)) {
+          s.categories.splice(idx, 1);
+          saveSettings(s);
+          renderCategories();
+          showToast('Category removed', 'success');
+        }
+      });
+    });
+  }
+
+  function renderPaymentMethods() {
+    const settings = getSettings();
+    const list = document.getElementById('payment-methods-list')!;
+
+    list.innerHTML = settings.paymentMethods.map((method, i) => `
+      <span class="badge border gap-1 py-1.5 px-3" style="background: var(--color-surface-alt); color: var(--color-text); border-color: var(--color-border);">
+        ${method}
+        <button class="delete-pm-btn ml-1 hover:text-red-500 transition-colors" style="color: var(--color-text-muted);" data-index="${i}">&times;</button>
+      </span>
+    `).join('');
+
+    list.querySelectorAll('.delete-pm-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt((btn as HTMLElement).dataset.index || '0');
+        const s = getSettings();
+        s.paymentMethods.splice(idx, 1);
+        saveSettings(s);
+        renderPaymentMethods();
+        showToast('Payment method removed', 'success');
+      });
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', init);
+  document.addEventListener('astro:page-load', init);
+</script>

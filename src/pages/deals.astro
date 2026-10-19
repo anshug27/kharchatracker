@@ -1,0 +1,338 @@
+---
+import Layout from '../layouts/Layout.astro';
+import AdUnit from '../components/AdUnit.astro';
+---
+<Layout title="Deals & Savings Finder - KharchaTracker" activeNav="home">
+
+  <!-- Page Header -->
+  <div class="mb-4">
+    <h1 class="text-xl font-bold mb-1">Deals & Savings Finder</h1>
+    <p class="text-sm" style="color: var(--color-text-muted);">Find ways to save money on your top spending categories</p>
+  </div>
+
+  <!-- Search Bar -->
+  <div class="relative mb-4">
+    <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2" style="color: var(--color-text-muted);" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+    <input id="deal-search" type="text" placeholder="Search for better deals..." class="input-field text-sm" style="padding-left: 2.5rem; padding-right: 5rem;" />
+    <button id="search-web-btn" class="absolute right-2 top-1/2 -translate-y-1/2 btn-primary text-xs" style="padding: 0.375rem 0.75rem;">Search</button>
+  </div>
+
+  <!-- Quick Search Chips -->
+  <div class="flex gap-2 mb-5 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide">
+    <button class="quick-chip btn-secondary text-xs whitespace-nowrap" style="padding: 0.375rem 0.75rem;" data-query="cheap groceries near me">🛒 Cheap groceries</button>
+    <button class="quick-chip btn-secondary text-xs whitespace-nowrap" style="padding: 0.375rem 0.75rem;" data-query="free entertainment ideas">🎭 Free entertainment</button>
+    <button class="quick-chip btn-secondary text-xs whitespace-nowrap" style="padding: 0.375rem 0.75rem;" data-query="how to save on utility bills">💡 Save on bills</button>
+    <button class="quick-chip btn-secondary text-xs whitespace-nowrap" style="padding: 0.375rem 0.75rem;" data-query="discount coupons India">🎟️ Discount coupons</button>
+    <button class="quick-chip btn-secondary text-xs whitespace-nowrap" style="padding: 0.375rem 0.75rem;" data-query="best cashback offers India">💸 Cashback offers</button>
+  </div>
+
+  <AdUnit />
+
+  <!-- Personalized Deal Suggestions (Based on Spending) -->
+  <div class="mb-5">
+    <div class="flex items-center gap-2 mb-3">
+      <span class="text-xl">🎯</span>
+      <h2 class="font-semibold">Deals For You</h2>
+    </div>
+    <p class="text-xs mb-3" style="color: var(--color-text-muted);">Based on your top spending categories</p>
+    <div id="personalized-deals" class="space-y-3">
+      <div class="card text-center py-6" style="color: var(--color-text-muted);">
+        <p class="text-2xl mb-2">🔍</p>
+        <p class="text-sm">Add some expenses to get personalized deal suggestions</p>
+      </div>
+    </div>
+  </div>
+
+  <AdUnit />
+
+  <!-- Money-Saving Tips -->
+  <div class="mb-5">
+    <div class="flex items-center gap-2 mb-3">
+      <span class="text-xl">💡</span>
+      <h2 class="font-semibold">Money-Saving Tips</h2>
+    </div>
+    <div class="space-y-3">
+      <div class="card border-l-4 border-l-emerald-500" style="padding: 1rem;">
+        <h3 class="font-medium text-sm mb-1">🍱 Meal Prep Sundays</h3>
+        <p class="text-xs" style="color: var(--color-text-muted);">Cooking meals at home and prepping for the week can save you 30-40% on food costs compared to ordering in daily.</p>
+      </div>
+      <div class="card border-l-4 border-l-blue-500" style="padding: 1rem;">
+        <h3 class="font-medium text-sm mb-1">📱 Audit Your Subscriptions</h3>
+        <p class="text-xs" style="color: var(--color-text-muted);">Review all your monthly subscriptions. Cancel ones you barely use. Switch to family plans for streaming services to split costs.</p>
+      </div>
+      <div class="card border-l-4 border-l-amber-500" style="padding: 1rem;">
+        <h3 class="font-medium text-sm mb-1">⏰ The 48-Hour Rule</h3>
+        <p class="text-xs" style="color: var(--color-text-muted);">Before any non-essential purchase over ₹500, wait 48 hours. You'll often realize you don't actually need it.</p>
+      </div>
+      <div class="card border-l-4 border-l-purple-500" style="padding: 1rem;">
+        <h3 class="font-medium text-sm mb-1">🚌 Use Public Transport</h3>
+        <p class="text-xs" style="color: var(--color-text-muted);">Switching from cabs to metro/bus for daily commute can save ₹3,000-5,000 per month. Get monthly passes for extra savings.</p>
+      </div>
+      <div class="card border-l-4 border-l-pink-500" style="padding: 1rem;">
+        <h3 class="font-medium text-sm mb-1">💳 Use UPI Cashback</h3>
+        <p class="text-xs" style="color: var(--color-text-muted);">Pay via UPI apps like PhonePe, GPay, or Paytm to earn cashback on everyday transactions. Small rewards add up!</p>
+      </div>
+      <div class="card border-l-4 border-l-indigo-500" style="padding: 1rem;">
+        <h3 class="font-medium text-sm mb-1">🏦 Automate Savings</h3>
+        <p class="text-xs" style="color: var(--color-text-muted);">Set up auto-transfer of 20% of your salary to a savings account on payday. What you don't see, you don't spend.</p>
+      </div>
+    </div>
+  </div>
+
+  <AdUnit />
+
+  <!-- Coupon & Deal Websites -->
+  <div class="mb-5">
+    <div class="flex items-center gap-2 mb-3">
+      <span class="text-xl">🔗</span>
+      <h2 class="font-semibold">Coupon & Deal Websites</h2>
+    </div>
+    <p class="text-xs mb-3" style="color: var(--color-text-muted);">Popular Indian deal websites to find the best offers</p>
+    <div class="grid grid-cols-2 gap-3">
+      <a href="https://www.coupondunia.in" target="_blank" rel="noopener noreferrer" class="card text-center hover:border-indigo-400 transition-colors" style="padding: 0.75rem;">
+        <span class="text-2xl block mb-1">🎟️</span>
+        <p class="text-sm font-medium">CouponDunia</p>
+        <p class="text-[10px]" style="color: var(--color-text-muted);">Coupons & Promo Codes</p>
+      </a>
+      <a href="https://www.magicpin.in" target="_blank" rel="noopener noreferrer" class="card text-center hover:border-indigo-400 transition-colors" style="padding: 0.75rem;">
+        <span class="text-2xl block mb-1">📍</span>
+        <p class="text-sm font-medium">Magicpin</p>
+        <p class="text-[10px]" style="color: var(--color-text-muted);">Local Deals & Cashback</p>
+      </a>
+      <a href="https://www.grabon.in" target="_blank" rel="noopener noreferrer" class="card text-center hover:border-indigo-400 transition-colors" style="padding: 0.75rem;">
+        <span class="text-2xl block mb-1">🏷️</span>
+        <p class="text-sm font-medium">GrabOn</p>
+        <p class="text-[10px]" style="color: var(--color-text-muted);">Offers & Deals</p>
+      </a>
+      <a href="https://www.cashkaro.com" target="_blank" rel="noopener noreferrer" class="card text-center hover:border-indigo-400 transition-colors" style="padding: 0.75rem;">
+        <span class="text-2xl block mb-1">💰</span>
+        <p class="text-sm font-medium">CashKaro</p>
+        <p class="text-[10px]" style="color: var(--color-text-muted);">Cashback & Rewards</p>
+      </a>
+      <a href="https://www.desidime.com" target="_blank" rel="noopener noreferrer" class="card text-center hover:border-indigo-400 transition-colors" style="padding: 0.75rem;">
+        <span class="text-2xl block mb-1">🔥</span>
+        <p class="text-sm font-medium">DesiDime</p>
+        <p class="text-[10px]" style="color: var(--color-text-muted);">Community Deals</p>
+      </a>
+      <a href="https://www.bankbazaar.com" target="_blank" rel="noopener noreferrer" class="card text-center hover:border-indigo-400 transition-colors" style="padding: 0.75rem;">
+        <span class="text-2xl block mb-1">🏦</span>
+        <p class="text-sm font-medium">BankBazaar</p>
+        <p class="text-[10px]" style="color: var(--color-text-muted);">Compare Financial Products</p>
+      </a>
+    </div>
+  </div>
+
+  <AdUnit />
+
+  <!-- SEO Content Section -->
+  <div class="card mb-4">
+    <h2 class="font-semibold mb-3">Smart Ways to Save Money in India</h2>
+    <div class="text-xs space-y-3 leading-relaxed" style="color: var(--color-text-muted);">
+      <p>
+        Managing your finances effectively is one of the most important skills you can develop. With rising costs of living in India,
+        it's crucial to track every rupee you spend and find ways to reduce unnecessary expenses. KharchaTracker helps you do exactly that —
+        giving you insights into your spending patterns and helping you discover deals and savings opportunities.
+      </p>
+      <p>
+        <strong style="color: var(--color-text);">Track, Budget, Save:</strong> The key to financial freedom is awareness. When you know where your money goes,
+        you can make smarter decisions. Studies show that people who track expenses save 15-20% more than those who don't.
+      </p>
+      <p>
+        <strong style="color: var(--color-text);">The Power of Small Savings:</strong> Saving ₹100 per day means ₹36,500 per year.
+        Invest that in a simple SIP with 12% returns, and in 10 years you'll have over ₹7 lakhs. Small habits lead to big results.
+      </p>
+      <p>
+        <strong style="color: var(--color-text);">Comparison Shopping:</strong> Always compare prices before making a purchase.
+        Use price comparison tools, wait for sales (Big Billion Days, Great Indian Festival), and stack coupons with cashback offers for maximum savings.
+      </p>
+    </div>
+  </div>
+
+</Layout>
+
+<script>
+  const CATEGORY_ICONS: Record<string, string> = {
+    'Food & Dining': '🍔', 'Transport': '🚗', 'Shopping': '🛍️',
+    'Bills & Utilities': '💡', 'Entertainment': '🎬', 'Health': '🏥',
+    'Education': '📚', 'Rent & Housing': '🏠', 'Subscriptions': '📱',
+    'Personal Care': '💆', 'Investments': '📈', 'Other': '📌',
+  };
+
+  interface DealSuggestion {
+    icon: string;
+    title: string;
+    description: string;
+    searchQuery: string;
+  }
+
+  const CATEGORY_DEALS: Record<string, DealSuggestion[]> = {
+    'Food & Dining': [
+      { icon: '🛒', title: 'Grocery Deals on BigBasket/Blinkit', description: 'Compare prices across BigBasket, Blinkit, and Zepto. Use their first-order discounts and cashback offers.', searchQuery: 'BigBasket Blinkit grocery offers today' },
+      { icon: '🍕', title: 'Swiggy/Zomato Coupons', description: 'Use Swiggy One or Zomato Pro for free delivery and extra discounts on food orders.', searchQuery: 'Swiggy Zomato coupon codes today' },
+      { icon: '🥗', title: 'Meal Prep Recipes', description: 'Cook budget-friendly meals at home. Find easy Indian meal prep ideas that cost under ₹100 per meal.', searchQuery: 'budget Indian meal prep recipes' },
+    ],
+    'Transport': [
+      { icon: '🚇', title: 'Monthly Metro Pass', description: 'Get metro monthly passes for unlimited travel. Saves up to 40% vs daily tickets.', searchQuery: 'metro monthly pass price' },
+      { icon: '⛽', title: 'Cheapest Fuel Prices', description: 'Find fuel stations with the best rates near you. Some credit cards offer fuel surcharge waivers.', searchQuery: 'fuel price today near me' },
+      { icon: '🚗', title: 'Carpool Options', description: 'Try carpooling with Quick Ride or BlaBlaCar to share commute costs.', searchQuery: 'carpool apps India' },
+    ],
+    'Shopping': [
+      { icon: '🏷️', title: 'Sale Season Alerts', description: 'Amazon Great Indian Festival, Flipkart Big Billion Days, and Myntra EORS — plan big purchases around these sales.', searchQuery: 'upcoming sale dates Amazon Flipkart' },
+      { icon: '💳', title: 'Credit Card Offers', description: 'Use credit cards with instant discounts on Amazon, Flipkart, and partner stores.', searchQuery: 'credit card shopping offers India' },
+      { icon: '🔄', title: 'Price Drop Alerts', description: 'Use price tracking tools to get notified when products drop in price.', searchQuery: 'Amazon price tracker India' },
+    ],
+    'Bills & Utilities': [
+      { icon: '⚡', title: 'Compare Electricity Plans', description: 'Check if your state offers lower tariff plans. Use energy-efficient appliances to cut bills by 20-30%.', searchQuery: 'save electricity bill India tips' },
+      { icon: '📶', title: 'Best Internet Plans', description: 'Compare broadband plans from Jio, Airtel, and ACT. Bundle offers save more.', searchQuery: 'cheapest broadband plans India comparison' },
+      { icon: '📱', title: 'Prepaid vs Postpaid', description: 'Compare mobile plans. Prepaid annual plans often cost less than monthly postpaid.', searchQuery: 'best mobile recharge plans comparison' },
+    ],
+    'Entertainment': [
+      { icon: '🎬', title: 'Free OTT Content', description: 'Explore free content on YouTube, MX Player, and Jio Cinema before paying for premium subscriptions.', searchQuery: 'free streaming platforms India' },
+      { icon: '🎮', title: 'Free Games & Events', description: 'Epic Games gives free games weekly. Local libraries and community centers host free events.', searchQuery: 'free things to do this weekend near me' },
+      { icon: '👨‍👩‍👧‍👦', title: 'Family Plans', description: 'Share Netflix, YouTube Premium, and Spotify family plans with friends to split costs.', searchQuery: 'streaming service family plan prices India' },
+    ],
+    'Health': [
+      { icon: '💊', title: 'Generic Medicines', description: 'Ask your doctor about generic alternatives. Apps like PharmEasy and 1mg offer discounts on medicines.', searchQuery: 'generic medicine discount apps India' },
+      { icon: '🏋️', title: 'Free Workout Alternatives', description: 'YouTube fitness channels, outdoor running, and bodyweight exercises can replace expensive gym memberships.', searchQuery: 'free workout alternatives to gym' },
+    ],
+    'Subscriptions': [
+      { icon: '📱', title: 'Subscription Audit', description: 'List all your subscriptions. Cancel unused ones. You might be paying for services you forgot about.', searchQuery: 'how to track and cancel subscriptions' },
+      { icon: '🎵', title: 'Student Discounts', description: 'Spotify, Apple Music, YouTube Premium all offer 50% student discounts. Check if you qualify.', searchQuery: 'student discounts streaming India' },
+    ],
+    'Rent & Housing': [
+      { icon: '🏠', title: 'Negotiate Rent', description: 'Research market rates on 99acres/MagicBricks before renewal. Long-term tenants often get better deals.', searchQuery: 'how to negotiate rent India tips' },
+      { icon: '🔧', title: 'DIY Home Repairs', description: 'Learn basic home repairs from YouTube. Simple fixes like plumbing and painting can save thousands.', searchQuery: 'DIY home repair tutorials India' },
+    ],
+  };
+
+  function formatINR(amount: number): string {
+    return '₹' + amount.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  }
+
+  function searchGoogle(query: string) {
+    window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, '_blank');
+  }
+
+  function init() {
+    // Search bar
+    const searchInput = document.getElementById('deal-search') as HTMLInputElement;
+    const searchBtn = document.getElementById('search-web-btn')!;
+
+    searchBtn.addEventListener('click', () => {
+      const query = searchInput.value.trim();
+      if (query) searchGoogle(query + ' deals India');
+    });
+
+    searchInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        const query = searchInput.value.trim();
+        if (query) searchGoogle(query + ' deals India');
+      }
+    });
+
+    // Quick search chips
+    document.querySelectorAll('.quick-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const query = (chip as HTMLElement).dataset.query || '';
+        searchGoogle(query);
+      });
+    });
+
+    // Check URL params for category pre-selection
+    const params = new URLSearchParams(window.location.search);
+    const categoryParam = params.get('category');
+    if (categoryParam) {
+      searchInput.value = categoryParam;
+    }
+
+    // Personalized deals based on spending
+    renderPersonalizedDeals();
+  }
+
+  function renderPersonalizedDeals() {
+    const container = document.getElementById('personalized-deals')!;
+
+    try {
+      const expenses = JSON.parse(localStorage.getItem('kt_expenses') || '[]');
+      const now = new Date();
+
+      // Get this month's expense categories
+      const thisMonth = expenses.filter((e: any) => {
+        const d = new Date(e.date);
+        return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear() && e.type === 'expense';
+      });
+
+      if (thisMonth.length === 0) return;
+
+      // Get top spending categories
+      const catTotals: Record<string, number> = {};
+      thisMonth.forEach((e: any) => {
+        catTotals[e.category] = (catTotals[e.category] || 0) + e.amount;
+      });
+
+      const sortedCats = Object.entries(catTotals)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 4);
+
+      if (sortedCats.length === 0) return;
+
+      const allDeals: { category: string; spent: number; deals: DealSuggestion[] }[] = [];
+
+      sortedCats.forEach(([cat, spent]) => {
+        const deals = CATEGORY_DEALS[cat];
+        if (deals && deals.length > 0) {
+          allDeals.push({ category: cat, spent: spent as number, deals });
+        }
+      });
+
+      if (allDeals.length === 0) {
+        container.innerHTML = `
+          <div class="card text-center py-6" style="color: var(--color-text-muted);">
+            <p class="text-2xl mb-2">🔍</p>
+            <p class="text-sm">No specific deals found for your spending categories. Try searching above!</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = allDeals.map(group => `
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-2">
+              <span class="text-lg">${CATEGORY_ICONS[group.category] || '📌'}</span>
+              <span class="text-sm font-medium">${group.category}</span>
+            </div>
+            <span class="badge bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300">${formatINR(group.spent)} spent</span>
+          </div>
+          <div class="space-y-2">
+            ${group.deals.map(deal => `
+              <div class="card flex items-start gap-3" style="padding: 0.75rem;">
+                <span class="text-xl flex-shrink-0 mt-0.5">${deal.icon}</span>
+                <div class="flex-1 min-w-0">
+                  <p class="font-medium text-sm">${deal.title}</p>
+                  <p class="text-xs mt-0.5" style="color: var(--color-text-muted);">${deal.description}</p>
+                </div>
+                <button class="search-deal-btn btn-secondary text-[10px] whitespace-nowrap flex-shrink-0 mt-0.5" style="padding: 0.375rem 0.625rem;" data-query="${deal.searchQuery}">
+                  Search Web
+                </button>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `).join('');
+
+      // Attach search handlers
+      container.querySelectorAll('.search-deal-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          searchGoogle((btn as HTMLElement).dataset.query || '');
+        });
+      });
+
+    } catch {
+      // If localStorage fails, show default message
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', init);
+  document.addEventListener('astro:page-load', init);
+</script>

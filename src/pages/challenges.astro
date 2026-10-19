@@ -1,0 +1,984 @@
+---
+import Layout from '../layouts/Layout.astro';
+import AdUnit from '../components/AdUnit.astro';
+---
+<Layout title="Challenges & Goals - KharchaTracker" activeNav="challenges">
+
+  <!-- Hero Stats Bar -->
+  <div class="grid grid-cols-3 gap-3 mb-5">
+    <div class="card text-center" style="padding: 0.75rem;">
+      <p class="text-2xl font-bold text-indigo-500" id="stat-completed">0</p>
+      <p class="text-[10px] leading-tight" style="color: var(--color-text-muted);">Completed</p>
+    </div>
+    <div class="card text-center" style="padding: 0.75rem;">
+      <p class="text-2xl font-bold text-emerald-500" id="stat-saved">₹0</p>
+      <p class="text-[10px] leading-tight" style="color: var(--color-text-muted);">Total Saved</p>
+    </div>
+    <div class="card text-center" style="padding: 0.75rem;">
+      <p class="text-2xl font-bold text-amber-500" id="stat-streak">0</p>
+      <p class="text-[10px] leading-tight" style="color: var(--color-text-muted);">Day Streak</p>
+    </div>
+  </div>
+
+  <!-- Achievement Badges -->
+  <div class="mb-5">
+    <h2 class="font-semibold mb-3 flex items-center gap-2">
+      <span>🏅</span> Achievement Badges
+    </h2>
+    <div class="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1 snap-x" id="badges-container">
+      <!-- Rendered by JS -->
+      <div class="flex gap-3">
+        <div class="flex-shrink-0 w-20 text-center opacity-30">
+          <div class="w-14 h-14 mx-auto rounded-full border-2 border-dashed flex items-center justify-center text-2xl" style="background: var(--color-surface-alt); border-color: var(--color-border);">🔒</div>
+          <p class="text-[10px] mt-1" style="color: var(--color-text-muted);">Loading...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Active Challenges -->
+  <div class="mb-5">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="font-semibold flex items-center gap-2">
+        <span>⚡</span> Active Challenges
+      </h2>
+      <button id="btn-add-challenge" class="text-sm text-indigo-500 font-medium hover:underline">+ New</button>
+    </div>
+    <div id="active-challenges" class="space-y-3">
+      <div class="card text-center py-8" style="color: var(--color-text-muted);">
+        <p class="text-3xl mb-2">🎯</p>
+        <p class="text-sm">No active challenges yet</p>
+        <p class="text-xs mt-1">Pick a template below or create your own!</p>
+      </div>
+    </div>
+  </div>
+
+  <AdUnit />
+
+  <!-- Savings Goals -->
+  <div class="mb-5">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="font-semibold flex items-center gap-2">
+        <span>🎯</span> Savings Goals
+      </h2>
+      <button id="btn-add-goal" class="text-sm text-indigo-500 font-medium hover:underline">+ New</button>
+    </div>
+    <div id="savings-goals" class="space-y-3">
+      <div class="card text-center py-8" style="color: var(--color-text-muted);">
+        <p class="text-3xl mb-2">💰</p>
+        <p class="text-sm">No savings goals yet</p>
+        <p class="text-xs mt-1">Set a goal and start saving!</p>
+      </div>
+    </div>
+  </div>
+
+  <AdUnit />
+
+  <!-- Challenge Templates -->
+  <div class="mb-5">
+    <h2 class="font-semibold mb-3 flex items-center gap-2">
+      <span>📋</span> Challenge Templates
+    </h2>
+    <div class="grid grid-cols-1 gap-3" id="templates-grid">
+      <!-- No-Spend Weekend -->
+      <div class="card flex items-start gap-3 cursor-pointer hover:border-indigo-400 transition-colors template-card" style="padding: 1rem;" data-template="no-spend-weekend">
+        <span class="text-3xl mt-0.5">🚫</span>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center justify-between">
+            <h3 class="font-semibold text-sm">No-Spend Weekend</h3>
+            <span class="badge bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300">2 days</span>
+          </div>
+          <p class="text-xs mt-1" style="color: var(--color-text-muted);">Don't spend anything for 2 days. A great way to reset your spending habits!</p>
+          <button class="btn-primary text-xs mt-2 start-template-btn" style="padding: 0.375rem 0.75rem;">Start Challenge</button>
+        </div>
+      </div>
+      <!-- ₹500 Weekly Challenge -->
+      <div class="card flex items-start gap-3 cursor-pointer hover:border-indigo-400 transition-colors template-card" style="padding: 1rem;" data-template="weekly-500">
+        <span class="text-3xl mt-0.5">💸</span>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center justify-between">
+            <h3 class="font-semibold text-sm">₹500 Weekly Challenge</h3>
+            <span class="badge bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">7 days</span>
+          </div>
+          <p class="text-xs mt-1" style="color: var(--color-text-muted);">Keep your total weekly spending under ₹500. Track every rupee!</p>
+          <button class="btn-primary text-xs mt-2 start-template-btn" style="padding: 0.375rem 0.75rem;">Start Challenge</button>
+        </div>
+      </div>
+      <!-- Food Budget Master -->
+      <div class="card flex items-start gap-3 cursor-pointer hover:border-indigo-400 transition-colors template-card" style="padding: 1rem;" data-template="food-budget">
+        <span class="text-3xl mt-0.5">🍔</span>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center justify-between">
+            <h3 class="font-semibold text-sm">Food Budget Master</h3>
+            <span class="badge bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300">30 days</span>
+          </div>
+          <p class="text-xs mt-1" style="color: var(--color-text-muted);">Reduce your food spending by 20% compared to last month.</p>
+          <button class="btn-primary text-xs mt-2 start-template-btn" style="padding: 0.375rem 0.75rem;">Start Challenge</button>
+        </div>
+      </div>
+      <!-- 30-Day Savings Sprint -->
+      <div class="card flex items-start gap-3 cursor-pointer hover:border-indigo-400 transition-colors template-card" style="padding: 1rem;" data-template="savings-sprint">
+        <span class="text-3xl mt-0.5">🏃</span>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center justify-between">
+            <h3 class="font-semibold text-sm">30-Day Savings Sprint</h3>
+            <span class="badge bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300">30 days</span>
+          </div>
+          <p class="text-xs mt-1" style="color: var(--color-text-muted);">Save ₹1,000 in 30 days. Small daily savings add up!</p>
+          <button class="btn-primary text-xs mt-2 start-template-btn" style="padding: 0.375rem 0.75rem;">Start Challenge</button>
+        </div>
+      </div>
+      <!-- Subscription Audit -->
+      <div class="card flex items-start gap-3 cursor-pointer hover:border-indigo-400 transition-colors template-card" style="padding: 1rem;" data-template="subscription-audit">
+        <span class="text-3xl mt-0.5">📱</span>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center justify-between">
+            <h3 class="font-semibold text-sm">Subscription Audit</h3>
+            <span class="badge bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300">7 days</span>
+          </div>
+          <p class="text-xs mt-1" style="color: var(--color-text-muted);">Review and cancel unused subscriptions. Save money every month!</p>
+          <button class="btn-primary text-xs mt-2 start-template-btn" style="padding: 0.375rem 0.75rem;">Start Challenge</button>
+        </div>
+      </div>
+      <!-- Cash-Only Week -->
+      <div class="card flex items-start gap-3 cursor-pointer hover:border-indigo-400 transition-colors template-card" style="padding: 1rem;" data-template="cash-only">
+        <span class="text-3xl mt-0.5">💵</span>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center justify-between">
+            <h3 class="font-semibold text-sm">Cash-Only Week</h3>
+            <span class="badge bg-teal-100 text-teal-700 dark:bg-teal-900 dark:text-teal-300">7 days</span>
+          </div>
+          <p class="text-xs mt-1" style="color: var(--color-text-muted);">Only use cash for a week. Feel every rupee you spend!</p>
+          <button class="btn-primary text-xs mt-2 start-template-btn" style="padding: 0.375rem 0.75rem;">Start Challenge</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <AdUnit />
+
+  <!-- Add Challenge Modal -->
+  <div id="challenge-modal" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm modal-backdrop"></div>
+    <div class="absolute bottom-0 left-0 right-0 rounded-t-3xl p-5 pb-8 max-h-[85vh] overflow-y-auto safe-area-bottom modal-content" style="background: var(--color-surface); transform: translateY(100%); transition: transform 0.3s ease-out;">
+      <div class="w-10 h-1 rounded-full mx-auto mb-4" style="background: var(--color-border);"></div>
+      <h2 class="text-lg font-bold mb-4">Create Custom Challenge</h2>
+      <div class="space-y-4">
+        <div>
+          <label class="text-sm mb-1 block" style="color: var(--color-text-muted);">Challenge Title</label>
+          <input id="ch-title" type="text" placeholder="e.g. No coffee for a week" class="input-field" maxlength="50" />
+        </div>
+        <div>
+          <label class="text-sm mb-1 block" style="color: var(--color-text-muted);">Description</label>
+          <input id="ch-desc" type="text" placeholder="Describe your challenge..." class="input-field" maxlength="100" />
+        </div>
+        <div>
+          <label class="text-sm mb-2 block" style="color: var(--color-text-muted);">Challenge Type</label>
+          <div class="grid grid-cols-2 gap-2">
+            <button class="ch-type-btn btn-secondary text-xs" style="padding-top: 0.5rem; padding-bottom: 0.5rem; background: #6366f1; color: white;" data-type="no-spend">🚫 No-Spend</button>
+            <button class="ch-type-btn btn-secondary text-xs" style="padding-top: 0.5rem; padding-bottom: 0.5rem;" data-type="save-target">💰 Save Target</button>
+            <button class="ch-type-btn btn-secondary text-xs" style="padding-top: 0.5rem; padding-bottom: 0.5rem;" data-type="reduce-category">📉 Reduce Category</button>
+            <button class="ch-type-btn btn-secondary text-xs" style="padding-top: 0.5rem; padding-bottom: 0.5rem;" data-type="custom">✨ Custom</button>
+          </div>
+          <input id="ch-type" type="hidden" value="no-spend" />
+        </div>
+        <div id="ch-target-wrap">
+          <label class="text-sm mb-1 block" style="color: var(--color-text-muted);">Target Amount (₹)</label>
+          <input id="ch-target" type="number" inputmode="numeric" placeholder="0" class="input-field" min="0" />
+        </div>
+        <div id="ch-category-wrap" class="hidden">
+          <label class="text-sm mb-1 block" style="color: var(--color-text-muted);">Category</label>
+          <select id="ch-category" class="input-field">
+            <option value="">Select category</option>
+            <option value="Food & Dining">Food & Dining</option>
+            <option value="Transport">Transport</option>
+            <option value="Shopping">Shopping</option>
+            <option value="Bills & Utilities">Bills & Utilities</option>
+            <option value="Entertainment">Entertainment</option>
+            <option value="Health">Health</option>
+            <option value="Education">Education</option>
+            <option value="Subscriptions">Subscriptions</option>
+            <option value="Personal Care">Personal Care</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-sm mb-1 block" style="color: var(--color-text-muted);">Start Date</label>
+            <input id="ch-start" type="date" class="input-field text-sm" style="padding-top: 0.5rem; padding-bottom: 0.5rem;" />
+          </div>
+          <div>
+            <label class="text-sm mb-1 block" style="color: var(--color-text-muted);">End Date</label>
+            <input id="ch-end" type="date" class="input-field text-sm" style="padding-top: 0.5rem; padding-bottom: 0.5rem;" />
+          </div>
+        </div>
+        <button id="ch-save-btn" class="w-full btn-primary font-bold" style="padding-top: 0.75rem; padding-bottom: 0.75rem;">Create Challenge 🚀</button>
+        <button id="ch-cancel-btn" class="w-full btn-secondary" style="padding-top: 0.75rem; padding-bottom: 0.75rem;">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Goal Modal -->
+  <div id="goal-modal" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm modal-backdrop"></div>
+    <div class="absolute bottom-0 left-0 right-0 rounded-t-3xl p-5 pb-8 max-h-[85vh] overflow-y-auto safe-area-bottom modal-content" style="background: var(--color-surface); transform: translateY(100%); transition: transform 0.3s ease-out;">
+      <div class="w-10 h-1 rounded-full mx-auto mb-4" style="background: var(--color-border);"></div>
+      <h2 class="text-lg font-bold mb-4">Add Savings Goal</h2>
+      <div class="space-y-4">
+        <div>
+          <label class="text-sm mb-1 block" style="color: var(--color-text-muted);">Goal Title</label>
+          <input id="goal-title" type="text" placeholder="e.g. Emergency Fund" class="input-field" maxlength="50" />
+        </div>
+        <div>
+          <label class="text-sm mb-1 block" style="color: var(--color-text-muted);">Target Amount (₹)</label>
+          <input id="goal-target" type="number" inputmode="numeric" placeholder="50000" class="input-field" min="1" />
+        </div>
+        <div>
+          <label class="text-sm mb-1 block" style="color: var(--color-text-muted);">Current Savings (₹)</label>
+          <input id="goal-current" type="number" inputmode="numeric" placeholder="0" class="input-field" min="0" />
+        </div>
+        <div>
+          <label class="text-sm mb-1 block" style="color: var(--color-text-muted);">Deadline (optional)</label>
+          <input id="goal-deadline" type="date" class="input-field text-sm" style="padding-top: 0.5rem; padding-bottom: 0.5rem;" />
+        </div>
+        <div>
+          <label class="text-sm mb-2 block" style="color: var(--color-text-muted);">Choose Icon</label>
+          <div class="flex flex-wrap gap-2" id="icon-picker">
+            <button class="goal-icon-btn w-10 h-10 rounded-xl border-2 flex items-center justify-center text-xl hover:border-indigo-400 transition-colors" style="border-color: #6366f1;" data-icon="🎯">🎯</button>
+            <button class="goal-icon-btn w-10 h-10 rounded-xl border-2 flex items-center justify-center text-xl hover:border-indigo-400 transition-colors" style="border-color: var(--color-border);" data-icon="🏠">🏠</button>
+            <button class="goal-icon-btn w-10 h-10 rounded-xl border-2 flex items-center justify-center text-xl hover:border-indigo-400 transition-colors" style="border-color: var(--color-border);" data-icon="🚗">🚗</button>
+            <button class="goal-icon-btn w-10 h-10 rounded-xl border-2 flex items-center justify-center text-xl hover:border-indigo-400 transition-colors" style="border-color: var(--color-border);" data-icon="📱">📱</button>
+            <button class="goal-icon-btn w-10 h-10 rounded-xl border-2 flex items-center justify-center text-xl hover:border-indigo-400 transition-colors" style="border-color: var(--color-border);" data-icon="✈️">✈️</button>
+            <button class="goal-icon-btn w-10 h-10 rounded-xl border-2 flex items-center justify-center text-xl hover:border-indigo-400 transition-colors" style="border-color: var(--color-border);" data-icon="🎓">🎓</button>
+            <button class="goal-icon-btn w-10 h-10 rounded-xl border-2 flex items-center justify-center text-xl hover:border-indigo-400 transition-colors" style="border-color: var(--color-border);" data-icon="💍">💍</button>
+            <button class="goal-icon-btn w-10 h-10 rounded-xl border-2 flex items-center justify-center text-xl hover:border-indigo-400 transition-colors" style="border-color: var(--color-border);" data-icon="🏥">🏥</button>
+            <button class="goal-icon-btn w-10 h-10 rounded-xl border-2 flex items-center justify-center text-xl hover:border-indigo-400 transition-colors" style="border-color: var(--color-border);" data-icon="🎮">🎮</button>
+            <button class="goal-icon-btn w-10 h-10 rounded-xl border-2 flex items-center justify-center text-xl hover:border-indigo-400 transition-colors" style="border-color: var(--color-border);" data-icon="💰">💰</button>
+            <button class="goal-icon-btn w-10 h-10 rounded-xl border-2 flex items-center justify-center text-xl hover:border-indigo-400 transition-colors" style="border-color: var(--color-border);" data-icon="🛍️">🛍️</button>
+            <button class="goal-icon-btn w-10 h-10 rounded-xl border-2 flex items-center justify-center text-xl hover:border-indigo-400 transition-colors" style="border-color: var(--color-border);" data-icon="⭐">⭐</button>
+          </div>
+          <input id="goal-icon" type="hidden" value="🎯" />
+        </div>
+        <button id="goal-save-btn" class="w-full btn-accent font-bold" style="padding-top: 0.75rem; padding-bottom: 0.75rem;">Add Goal 🎯</button>
+        <button id="goal-cancel-btn" class="w-full btn-secondary" style="padding-top: 0.75rem; padding-bottom: 0.75rem;">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Update Goal Modal -->
+  <div id="update-goal-modal" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm modal-backdrop"></div>
+    <div class="absolute bottom-0 left-0 right-0 rounded-t-3xl p-5 pb-8 safe-area-bottom modal-content" style="background: var(--color-surface); transform: translateY(100%); transition: transform 0.3s ease-out;">
+      <div class="w-10 h-1 rounded-full mx-auto mb-4" style="background: var(--color-border);"></div>
+      <h2 class="text-lg font-bold mb-4">Update Savings</h2>
+      <div class="space-y-4">
+        <p id="update-goal-name" class="text-sm" style="color: var(--color-text-muted);"></p>
+        <div>
+          <label class="text-sm mb-1 block" style="color: var(--color-text-muted);">Add Amount (₹)</label>
+          <input id="update-goal-amount" type="number" inputmode="numeric" placeholder="500" class="input-field" min="1" />
+        </div>
+        <button id="update-goal-save-btn" class="w-full btn-accent font-bold" style="padding-top: 0.75rem; padding-bottom: 0.75rem;">Add Savings 💰</button>
+        <button id="update-goal-cancel-btn" class="w-full btn-secondary" style="padding-top: 0.75rem; padding-bottom: 0.75rem;">Cancel</button>
+      </div>
+      <input id="update-goal-id" type="hidden" value="" />
+    </div>
+  </div>
+
+</Layout>
+
+<script>
+  // ---- Types ----
+  interface Challenge {
+    id: string;
+    title: string;
+    description: string;
+    type: 'no-spend' | 'save-target' | 'reduce-category' | 'custom';
+    targetAmount?: number;
+    category?: string;
+    startDate: string;
+    endDate: string;
+    isCompleted: boolean;
+    createdAt: string;
+  }
+
+  interface Goal {
+    id: string;
+    title: string;
+    targetAmount: number;
+    currentAmount: number;
+    deadline?: string;
+    icon?: string;
+    createdAt: string;
+  }
+
+  interface Expense {
+    id: string;
+    amount: number;
+    category: string;
+    date: string;
+    type: string;
+    [key: string]: any;
+  }
+
+  // ---- Helpers ----
+  function generateId(): string {
+    return Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
+  }
+
+  function formatINR(amount: number): string {
+    return '\u20B9' + amount.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  }
+
+  function getChallenges(): Challenge[] {
+    return JSON.parse(localStorage.getItem('kt_challenges') || '[]');
+  }
+  function saveChallenges(c: Challenge[]) {
+    localStorage.setItem('kt_challenges', JSON.stringify(c));
+  }
+  function getGoals(): Goal[] {
+    return JSON.parse(localStorage.getItem('kt_goals') || '[]');
+  }
+  function saveGoals(g: Goal[]) {
+    localStorage.setItem('kt_goals', JSON.stringify(g));
+  }
+  function getExpenses(): Expense[] {
+    return JSON.parse(localStorage.getItem('kt_expenses') || '[]');
+  }
+
+  function showToast(message: string, type: 'success' | 'error') {
+    const toast = document.createElement('div');
+    toast.className = `toast ${type === 'success' ? 'bg-emerald-500' : 'bg-red-500'}`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+  }
+
+  function daysBetween(a: string, b: string): number {
+    const msPerDay = 86400000;
+    return Math.ceil((new Date(b).getTime() - new Date(a).getTime()) / msPerDay);
+  }
+
+  function todayStr(): string {
+    return new Date().toISOString().split('T')[0];
+  }
+
+  // ---- Challenge Progress Calculation ----
+  function calcChallengeProgress(ch: Challenge, expenses: Expense[]): { pct: number; status: 'active' | 'completed' | 'failed'; statusLabel: string; detail: string } {
+    const now = new Date();
+    const start = new Date(ch.startDate);
+    const end = new Date(ch.endDate);
+    const totalDays = Math.max(1, daysBetween(ch.startDate, ch.endDate));
+    const elapsed = Math.max(0, daysBetween(ch.startDate, todayStr()));
+    const remaining = Math.max(0, daysBetween(todayStr(), ch.endDate));
+    const isOver = now > end;
+
+    // Filter expenses in the challenge date range
+    const rangeExpenses = expenses.filter(e => {
+      if (e.type !== 'expense') return false;
+      const d = new Date(e.date);
+      return d >= start && d <= end;
+    });
+
+    if (ch.type === 'no-spend') {
+      const spent = rangeExpenses.length;
+      if (ch.isCompleted) return { pct: 100, status: 'completed', statusLabel: 'Completed', detail: 'Zero spending achieved!' };
+      if (spent > 0) return { pct: 0, status: isOver ? 'failed' : 'active', statusLabel: isOver ? 'Failed' : 'Active', detail: `${spent} expense(s) recorded` };
+      if (isOver) return { pct: 100, status: 'completed', statusLabel: 'Completed', detail: 'No spending - great job!' };
+      const pct = Math.min(100, Math.round((elapsed / totalDays) * 100));
+      return { pct, status: 'active', statusLabel: 'Active', detail: `${remaining} day(s) left - stay strong!` };
+    }
+
+    if (ch.type === 'save-target') {
+      const target = ch.targetAmount || 1;
+      const income = expenses.filter(e => {
+        if (e.type !== 'income') return false;
+        const d = new Date(e.date);
+        return d >= start && d <= end;
+      }).reduce((s, e) => s + e.amount, 0);
+      const expenseTotal = rangeExpenses.reduce((s, e) => s + e.amount, 0);
+      const saved = Math.max(0, income - expenseTotal);
+      const pct = Math.min(100, Math.round((saved / target) * 100));
+      if (ch.isCompleted || pct >= 100) return { pct: 100, status: 'completed', statusLabel: 'Completed', detail: `Saved ${formatINR(saved)} of ${formatINR(target)}` };
+      if (isOver) return { pct, status: 'failed', statusLabel: 'Failed', detail: `Saved ${formatINR(saved)} of ${formatINR(target)}` };
+      return { pct, status: 'active', statusLabel: 'Active', detail: `${formatINR(saved)} / ${formatINR(target)} saved` };
+    }
+
+    if (ch.type === 'reduce-category') {
+      const cat = ch.category || '';
+      const catExpenses = rangeExpenses.filter(e => e.category === cat).reduce((s, e) => s + e.amount, 0);
+      // Compare to previous period of same length
+      const prevStart = new Date(start);
+      prevStart.setDate(prevStart.getDate() - totalDays);
+      const prevExpenses = expenses.filter(e => {
+        if (e.type !== 'expense' || e.category !== cat) return false;
+        const d = new Date(e.date);
+        return d >= prevStart && d < start;
+      }).reduce((s, e) => s + e.amount, 0);
+      const target = prevExpenses > 0 ? prevExpenses * 0.8 : (ch.targetAmount || 1);
+      if (prevExpenses === 0) {
+        const pct = Math.min(100, Math.round((elapsed / totalDays) * 100));
+        return { pct, status: isOver ? 'completed' : 'active', statusLabel: isOver ? 'Completed' : 'Active', detail: `${formatINR(catExpenses)} spent on ${cat}` };
+      }
+      const reduction = prevExpenses - catExpenses;
+      const pct = Math.min(100, Math.max(0, Math.round((reduction / (prevExpenses * 0.2)) * 100)));
+      if (ch.isCompleted || (isOver && catExpenses <= target)) return { pct: 100, status: 'completed', statusLabel: 'Completed', detail: `Reduced ${cat} by ${Math.round((reduction / prevExpenses) * 100)}%` };
+      if (isOver) return { pct, status: 'failed', statusLabel: 'Failed', detail: `Spent ${formatINR(catExpenses)} vs target ${formatINR(target)}` };
+      return { pct, status: 'active', statusLabel: 'Active', detail: `${formatINR(catExpenses)} spent, target < ${formatINR(target)}` };
+    }
+
+    // Custom
+    if (ch.targetAmount && ch.targetAmount > 0) {
+      const totalSpent = rangeExpenses.reduce((s, e) => s + e.amount, 0);
+      const pct = Math.min(100, Math.round(((ch.targetAmount - totalSpent) / ch.targetAmount) * 100));
+      if (ch.isCompleted) return { pct: 100, status: 'completed', statusLabel: 'Completed', detail: 'Challenge completed!' };
+      if (isOver) return { pct: pct >= 50 ? 100 : pct, status: pct >= 50 ? 'completed' : 'failed', statusLabel: pct >= 50 ? 'Completed' : 'Failed', detail: `Spent ${formatINR(totalSpent)}` };
+      return { pct: Math.min(100, Math.round((elapsed / totalDays) * 100)), status: 'active', statusLabel: 'Active', detail: `${remaining} day(s) remaining` };
+    }
+
+    const timePct = Math.min(100, Math.round((elapsed / totalDays) * 100));
+    if (ch.isCompleted) return { pct: 100, status: 'completed', statusLabel: 'Completed', detail: 'Challenge completed!' };
+    if (isOver) return { pct: 100, status: 'completed', statusLabel: 'Completed', detail: 'Time period ended' };
+    return { pct: timePct, status: 'active', statusLabel: 'Active', detail: `${remaining} day(s) remaining` };
+  }
+
+  // ---- Badge System ----
+  interface Badge {
+    id: string;
+    icon: string;
+    title: string;
+    description: string;
+    earned: boolean;
+  }
+
+  function computeBadges(challenges: Challenge[], goals: Goal[]): Badge[] {
+    const completed = challenges.filter(c => c.isCompleted);
+    const totalSaved = goals.reduce((s, g) => s + g.currentAmount, 0);
+
+    return [
+      { id: 'first-challenge', icon: '🌟', title: 'First Challenge', description: 'Started your first challenge', earned: challenges.length > 0 },
+      { id: 'challenge-complete', icon: '🏆', title: 'Challenge Victor', description: 'Completed a challenge', earned: completed.length > 0 },
+      { id: 'three-streak', icon: '🔥', title: '3-Day Streak', description: 'Completed 3 challenges', earned: completed.length >= 3 },
+      { id: 'budget-master', icon: '👑', title: 'Budget Master', description: 'Completed 5 challenges', earned: completed.length >= 5 },
+      { id: 'saving-star', icon: '⭐', title: 'Saving Star', description: 'Saved ₹1,000+', earned: totalSaved >= 1000 },
+      { id: 'goal-setter', icon: '🎯', title: 'Goal Setter', description: 'Created a savings goal', earned: goals.length > 0 },
+      { id: 'goal-crusher', icon: '💎', title: 'Goal Crusher', description: 'Reached a savings goal', earned: goals.some(g => g.currentAmount >= g.targetAmount) },
+      { id: 'super-saver', icon: '🦸', title: 'Super Saver', description: 'Saved ₹10,000+', earned: totalSaved >= 10000 },
+      { id: 'ten-challenges', icon: '🎖️', title: 'Veteran', description: 'Completed 10 challenges', earned: completed.length >= 10 },
+      { id: 'no-spend-hero', icon: '🛡️', title: 'No-Spend Hero', description: 'Completed a no-spend challenge', earned: completed.some(c => c.type === 'no-spend') },
+    ];
+  }
+
+  // ---- Streak Calculation ----
+  function calcStreak(challenges: Challenge[]): number {
+    const completed = challenges.filter(c => c.isCompleted).sort((a, b) => new Date(b.endDate).getTime() - new Date(a.endDate).getTime());
+    if (completed.length === 0) return 0;
+    let streak = 0;
+    const now = new Date();
+    for (const ch of completed) {
+      const end = new Date(ch.endDate);
+      const diff = Math.abs(daysBetween(end.toISOString(), now.toISOString()));
+      if (diff <= 7 * (streak + 1)) {
+        streak++;
+      } else {
+        break;
+      }
+    }
+    return streak;
+  }
+
+  // ---- Open / Close Modal ----
+  function openModal(id: string) {
+    const modal = document.getElementById(id);
+    if (!modal) return;
+    modal.classList.remove('hidden');
+    requestAnimationFrame(() => {
+      const content = modal.querySelector('.modal-content') as HTMLElement;
+      if (content) content.style.transform = 'translateY(0)';
+    });
+  }
+
+  function closeModal(id: string) {
+    const modal = document.getElementById(id);
+    if (!modal) return;
+    const content = modal.querySelector('.modal-content') as HTMLElement;
+    if (content) content.style.transform = 'translateY(100%)';
+    setTimeout(() => modal.classList.add('hidden'), 300);
+  }
+
+  // ---- Template Definitions ----
+  function getTemplateChallenge(templateId: string): Partial<Challenge> | null {
+    const today = todayStr();
+    const d = new Date();
+    switch (templateId) {
+      case 'no-spend-weekend': {
+        const dayOfWeek = d.getDay();
+        const daysUntilSat = (6 - dayOfWeek + 7) % 7 || 7;
+        const startD = new Date(d);
+        startD.setDate(d.getDate() + daysUntilSat);
+        const endD = new Date(startD);
+        endD.setDate(startD.getDate() + 1);
+        return { title: 'No-Spend Weekend', description: "Don't spend anything for 2 days. Reset your spending habits!", type: 'no-spend', startDate: startD.toISOString().split('T')[0], endDate: endD.toISOString().split('T')[0] };
+      }
+      case 'weekly-500': {
+        const endD = new Date(d);
+        endD.setDate(d.getDate() + 6);
+        return { title: '\u20B9500 Weekly Challenge', description: 'Keep weekly spending under \u20B9500.', type: 'save-target', targetAmount: 500, startDate: today, endDate: endD.toISOString().split('T')[0] };
+      }
+      case 'food-budget': {
+        const endD = new Date(d);
+        endD.setDate(d.getDate() + 29);
+        return { title: 'Food Budget Master', description: 'Reduce food spending by 20% compared to last month.', type: 'reduce-category', category: 'Food & Dining', startDate: today, endDate: endD.toISOString().split('T')[0] };
+      }
+      case 'savings-sprint': {
+        const endD = new Date(d);
+        endD.setDate(d.getDate() + 29);
+        return { title: '30-Day Savings Sprint', description: 'Save \u20B91,000 in 30 days.', type: 'save-target', targetAmount: 1000, startDate: today, endDate: endD.toISOString().split('T')[0] };
+      }
+      case 'subscription-audit': {
+        const endD = new Date(d);
+        endD.setDate(d.getDate() + 6);
+        return { title: 'Subscription Audit', description: 'Review and cancel unused subscriptions.', type: 'reduce-category', category: 'Subscriptions', startDate: today, endDate: endD.toISOString().split('T')[0] };
+      }
+      case 'cash-only': {
+        const endD = new Date(d);
+        endD.setDate(d.getDate() + 6);
+        return { title: 'Cash-Only Week', description: 'Only use cash for a week. Feel every rupee you spend!', type: 'custom', startDate: today, endDate: endD.toISOString().split('T')[0] };
+      }
+      default: return null;
+    }
+  }
+
+  // ---- Render Functions ----
+  function renderActiveChallenges() {
+    const container = document.getElementById('active-challenges');
+    if (!container) return;
+    const challenges = getChallenges();
+    const expenses = getExpenses();
+
+    // Sort: active first, then completed, then failed
+    const sorted = [...challenges].sort((a, b) => {
+      const pa = calcChallengeProgress(a, expenses);
+      const pb = calcChallengeProgress(b, expenses);
+      const order: Record<string, number> = { active: 0, completed: 1, failed: 2 };
+      return (order[pa.status] ?? 1) - (order[pb.status] ?? 1);
+    });
+
+    if (sorted.length === 0) {
+      container.innerHTML = `
+        <div class="card text-center py-8" style="color: var(--color-text-muted);">
+          <p class="text-3xl mb-2">🎯</p>
+          <p class="text-sm">No active challenges yet</p>
+          <p class="text-xs mt-1">Pick a template below or create your own!</p>
+        </div>`;
+      return;
+    }
+
+    container.innerHTML = sorted.map(ch => {
+      const prog = calcChallengeProgress(ch, expenses);
+      const remaining = Math.max(0, daysBetween(todayStr(), ch.endDate));
+
+      const statusColors: Record<string, string> = {
+        active: 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300',
+        completed: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300',
+        failed: 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300',
+      };
+      const barColors: Record<string, string> = {
+        active: 'bg-indigo-500',
+        completed: 'bg-emerald-500',
+        failed: 'bg-red-500',
+      };
+      const typeIcons: Record<string, string> = {
+        'no-spend': '🚫',
+        'save-target': '💰',
+        'reduce-category': '📉',
+        'custom': '✨',
+      };
+
+      return `
+        <div class="card" style="padding: 1rem;">
+          <div class="flex items-start gap-3">
+            <span class="text-2xl mt-0.5">${typeIcons[ch.type] || '✨'}</span>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center justify-between mb-1">
+                <h3 class="font-semibold text-sm truncate pr-2">${ch.title}</h3>
+                <span class="badge ${statusColors[prog.status]} flex-shrink-0">${prog.statusLabel}</span>
+              </div>
+              <p class="text-xs mb-2" style="color: var(--color-text-muted);">${ch.description}</p>
+              <!-- Progress bar -->
+              <div class="w-full rounded-full h-2.5 mb-1.5" style="background: var(--color-surface-alt);">
+                <div class="${barColors[prog.status]} h-2.5 rounded-full transition-all duration-500" style="width: ${prog.pct}%"></div>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-[10px]" style="color: var(--color-text-muted);">${prog.detail}</span>
+                <span class="text-[10px]" style="color: var(--color-text-muted);">${prog.pct}%</span>
+              </div>
+              <!-- Actions -->
+              <div class="flex gap-2 mt-2">
+                ${prog.status === 'active' && !ch.isCompleted ? `<button class="btn-accent text-xs mark-complete-btn" style="padding: 0.25rem 0.75rem;" data-id="${ch.id}">Complete ✓</button>` : ''}
+                <button class="btn-danger text-xs delete-challenge-btn" style="padding: 0.25rem 0.75rem;" data-id="${ch.id}">Delete</button>
+              </div>
+            </div>
+          </div>
+          <div class="flex items-center gap-3 mt-3 pt-3 border-t" style="border-color: var(--color-border);">
+            <span class="text-[10px]" style="color: var(--color-text-muted);">📅 ${new Date(ch.startDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })} - ${new Date(ch.endDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</span>
+            ${prog.status === 'active' ? `<span class="text-[10px] font-medium text-indigo-500">⏳ ${remaining} day(s) left</span>` : ''}
+          </div>
+        </div>`;
+    }).join('');
+
+    // Bind actions
+    container.querySelectorAll('.mark-complete-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = (btn as HTMLElement).dataset.id!;
+        const challenges = getChallenges();
+        const ch = challenges.find(c => c.id === id);
+        if (ch) {
+          ch.isCompleted = true;
+          saveChallenges(challenges);
+          showToast('Challenge completed! 🎉', 'success');
+          renderAll();
+        }
+      });
+    });
+    container.querySelectorAll('.delete-challenge-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = (btn as HTMLElement).dataset.id!;
+        const challenges = getChallenges().filter(c => c.id !== id);
+        saveChallenges(challenges);
+        showToast('Challenge deleted', 'success');
+        renderAll();
+      });
+    });
+  }
+
+  function renderSavingsGoals() {
+    const container = document.getElementById('savings-goals');
+    if (!container) return;
+    const goals = getGoals();
+
+    if (goals.length === 0) {
+      container.innerHTML = `
+        <div class="card text-center py-8" style="color: var(--color-text-muted);">
+          <p class="text-3xl mb-2">💰</p>
+          <p class="text-sm">No savings goals yet</p>
+          <p class="text-xs mt-1">Set a goal and start saving!</p>
+        </div>`;
+      return;
+    }
+
+    container.innerHTML = goals.map(g => {
+      const pct = Math.min(100, Math.round((g.currentAmount / g.targetAmount) * 100));
+      const remaining = g.targetAmount - g.currentAmount;
+      const isComplete = pct >= 100;
+      const deadlineStr = g.deadline ? new Date(g.deadline).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+      const daysLeft = g.deadline ? Math.max(0, daysBetween(todayStr(), g.deadline)) : null;
+
+      // SVG circular progress
+      const radius = 36;
+      const circumference = 2 * Math.PI * radius;
+      const offset = circumference - (circumference * pct / 100);
+
+      return `
+        <div class="card" style="padding: 1rem;">
+          <div class="flex items-center gap-4">
+            <!-- Circular Progress -->
+            <div class="relative flex-shrink-0">
+              <svg class="w-20 h-20 -rotate-90" viewBox="0 0 80 80">
+                <circle cx="40" cy="40" r="${radius}" fill="none" stroke="var(--color-border)" stroke-width="6"/>
+                <circle cx="40" cy="40" r="${radius}" fill="none" stroke="${isComplete ? '#10b981' : '#6366f1'}" stroke-width="6" stroke-linecap="round" stroke-dasharray="${circumference}" stroke-dashoffset="${offset}" class="transition-all duration-700"/>
+              </svg>
+              <div class="absolute inset-0 flex items-center justify-center">
+                <span class="text-2xl">${g.icon || '🎯'}</span>
+              </div>
+            </div>
+            <!-- Details -->
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center justify-between mb-0.5">
+                <h3 class="font-semibold text-sm truncate pr-2">${g.title}</h3>
+                <span class="badge ${isComplete ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300' : 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300'}">${pct}%</span>
+              </div>
+              <p class="text-xs" style="color: var(--color-text-muted);">${formatINR(g.currentAmount)} of ${formatINR(g.targetAmount)}</p>
+              ${!isComplete ? `<p class="text-[10px] mt-0.5" style="color: var(--color-text-muted);">${formatINR(remaining)} to go</p>` : `<p class="text-[10px] text-emerald-500 font-medium mt-0.5">Goal reached! 🎉</p>`}
+              ${deadlineStr ? `<p class="text-[10px] mt-0.5" style="color: var(--color-text-muted);">📅 ${deadlineStr}${daysLeft !== null && !isComplete ? ` (${daysLeft}d left)` : ''}</p>` : ''}
+              <div class="flex gap-2 mt-2">
+                ${!isComplete ? `<button class="btn-accent text-xs update-goal-btn" style="padding: 0.25rem 0.75rem;" data-id="${g.id}" data-title="${g.title}">+ Add Savings</button>` : ''}
+                <button class="btn-danger text-xs delete-goal-btn" style="padding: 0.25rem 0.75rem;" data-id="${g.id}">Delete</button>
+              </div>
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+
+    // Bind actions
+    container.querySelectorAll('.update-goal-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = (btn as HTMLElement).dataset.id!;
+        const title = (btn as HTMLElement).dataset.title || '';
+        (document.getElementById('update-goal-id') as HTMLInputElement).value = id;
+        (document.getElementById('update-goal-name') as HTMLElement).textContent = `Adding to: ${title}`;
+        (document.getElementById('update-goal-amount') as HTMLInputElement).value = '';
+        openModal('update-goal-modal');
+      });
+    });
+    container.querySelectorAll('.delete-goal-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = (btn as HTMLElement).dataset.id!;
+        const goals = getGoals().filter(g => g.id !== id);
+        saveGoals(goals);
+        showToast('Goal deleted', 'success');
+        renderAll();
+      });
+    });
+  }
+
+  function renderBadges() {
+    const container = document.getElementById('badges-container');
+    if (!container) return;
+    const challenges = getChallenges();
+    const goals = getGoals();
+    const badges = computeBadges(challenges, goals);
+
+    container.innerHTML = `<div class="flex gap-3">${badges.map(b => `
+      <div class="flex-shrink-0 w-20 text-center snap-start ${b.earned ? '' : 'opacity-30 grayscale'}">
+        <div class="w-14 h-14 mx-auto rounded-full ${b.earned ? 'bg-amber-50 dark:bg-amber-950 border-2 border-amber-400 shadow-md shadow-amber-200/30 dark:shadow-amber-800/20' : 'border-2 border-dashed'} flex items-center justify-center text-2xl transition-all" ${!b.earned ? 'style="background: var(--color-surface-alt); border-color: var(--color-border);"' : ''}>
+          ${b.earned ? b.icon : '🔒'}
+        </div>
+        <p class="text-[10px] mt-1 leading-tight font-medium" style="color: var(--color-text-muted);">${b.title}</p>
+      </div>
+    `).join('')}</div>`;
+  }
+
+  function renderStats() {
+    const challenges = getChallenges();
+    const goals = getGoals();
+    const completed = challenges.filter(c => c.isCompleted).length;
+    const totalSaved = goals.reduce((s, g) => s + g.currentAmount, 0);
+    const streak = calcStreak(challenges);
+
+    const statCompleted = document.getElementById('stat-completed');
+    const statSaved = document.getElementById('stat-saved');
+    const statStreak = document.getElementById('stat-streak');
+
+    if (statCompleted) statCompleted.textContent = String(completed);
+    if (statSaved) statSaved.textContent = formatINR(totalSaved);
+    if (statStreak) statStreak.textContent = String(streak);
+  }
+
+  function renderAll() {
+    renderStats();
+    renderBadges();
+    renderActiveChallenges();
+    renderSavingsGoals();
+  }
+
+  // ---- Event Bindings ----
+  function initPage() {
+    // Set default dates
+    const today = todayStr();
+    const nextWeek = new Date();
+    nextWeek.setDate(nextWeek.getDate() + 7);
+    const nextWeekStr = nextWeek.toISOString().split('T')[0];
+
+    (document.getElementById('ch-start') as HTMLInputElement).value = today;
+    (document.getElementById('ch-end') as HTMLInputElement).value = nextWeekStr;
+
+    // Modal: Add Challenge
+    document.getElementById('btn-add-challenge')?.addEventListener('click', () => openModal('challenge-modal'));
+    document.getElementById('ch-cancel-btn')?.addEventListener('click', () => closeModal('challenge-modal'));
+    document.querySelector('#challenge-modal .modal-backdrop')?.addEventListener('click', () => closeModal('challenge-modal'));
+
+    // Challenge type selector
+    let selectedType: Challenge['type'] = 'no-spend';
+    document.querySelectorAll('.ch-type-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.ch-type-btn').forEach(b => {
+          b.className = 'ch-type-btn btn-secondary text-xs';
+          (b as HTMLElement).style.cssText = 'padding-top: 0.5rem; padding-bottom: 0.5rem;';
+        });
+        (btn as HTMLElement).className = 'ch-type-btn btn-secondary text-xs';
+        (btn as HTMLElement).style.cssText = 'padding-top: 0.5rem; padding-bottom: 0.5rem; background: #6366f1; color: white;';
+        selectedType = (btn as HTMLElement).dataset.type as Challenge['type'];
+        (document.getElementById('ch-type') as HTMLInputElement).value = selectedType;
+
+        // Show/hide target and category
+        const targetWrap = document.getElementById('ch-target-wrap')!;
+        const catWrap = document.getElementById('ch-category-wrap')!;
+        if (selectedType === 'no-spend') {
+          targetWrap.classList.add('hidden');
+          catWrap.classList.add('hidden');
+        } else if (selectedType === 'save-target') {
+          targetWrap.classList.remove('hidden');
+          catWrap.classList.add('hidden');
+        } else if (selectedType === 'reduce-category') {
+          targetWrap.classList.remove('hidden');
+          catWrap.classList.remove('hidden');
+        } else {
+          targetWrap.classList.remove('hidden');
+          catWrap.classList.add('hidden');
+        }
+      });
+    });
+
+    // Save challenge
+    document.getElementById('ch-save-btn')?.addEventListener('click', () => {
+      const title = (document.getElementById('ch-title') as HTMLInputElement).value.trim();
+      const desc = (document.getElementById('ch-desc') as HTMLInputElement).value.trim();
+      const type = (document.getElementById('ch-type') as HTMLInputElement).value as Challenge['type'];
+      const target = parseFloat((document.getElementById('ch-target') as HTMLInputElement).value) || undefined;
+      const category = (document.getElementById('ch-category') as HTMLSelectElement).value || undefined;
+      const start = (document.getElementById('ch-start') as HTMLInputElement).value;
+      const end = (document.getElementById('ch-end') as HTMLInputElement).value;
+
+      if (!title) { showToast('Please enter a title', 'error'); return; }
+      if (!start || !end) { showToast('Please set start and end dates', 'error'); return; }
+      if (new Date(end) <= new Date(start)) { showToast('End date must be after start date', 'error'); return; }
+      if (type === 'reduce-category' && !category) { showToast('Please select a category', 'error'); return; }
+
+      const challenge: Challenge = {
+        id: generateId(),
+        title,
+        description: desc || title,
+        type,
+        targetAmount: target,
+        category,
+        startDate: start,
+        endDate: end,
+        isCompleted: false,
+        createdAt: new Date().toISOString(),
+      };
+
+      const challenges = getChallenges();
+      challenges.push(challenge);
+      saveChallenges(challenges);
+
+      // Reset form
+      (document.getElementById('ch-title') as HTMLInputElement).value = '';
+      (document.getElementById('ch-desc') as HTMLInputElement).value = '';
+      (document.getElementById('ch-target') as HTMLInputElement).value = '';
+
+      closeModal('challenge-modal');
+      showToast('Challenge created! Let\'s go! 🚀', 'success');
+      renderAll();
+    });
+
+    // Template buttons
+    document.querySelectorAll('.start-template-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const card = (btn as HTMLElement).closest('.template-card');
+        const templateId = card?.getAttribute('data-template');
+        if (!templateId) return;
+
+        const template = getTemplateChallenge(templateId);
+        if (!template) return;
+
+        const challenge: Challenge = {
+          id: generateId(),
+          title: template.title!,
+          description: template.description!,
+          type: template.type!,
+          targetAmount: template.targetAmount,
+          category: template.category,
+          startDate: template.startDate!,
+          endDate: template.endDate!,
+          isCompleted: false,
+          createdAt: new Date().toISOString(),
+        };
+
+        const challenges = getChallenges();
+        challenges.push(challenge);
+        saveChallenges(challenges);
+        showToast(`"${challenge.title}" started! 🔥`, 'success');
+        renderAll();
+
+        // Scroll to active challenges
+        document.getElementById('active-challenges')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+
+    // Modal: Add Goal
+    document.getElementById('btn-add-goal')?.addEventListener('click', () => openModal('goal-modal'));
+    document.getElementById('goal-cancel-btn')?.addEventListener('click', () => closeModal('goal-modal'));
+    document.querySelector('#goal-modal .modal-backdrop')?.addEventListener('click', () => closeModal('goal-modal'));
+
+    // Goal icon picker
+    let selectedGoalIcon = '🎯';
+    document.querySelectorAll('.goal-icon-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.goal-icon-btn').forEach(b => {
+          (b as HTMLElement).style.borderColor = 'var(--color-border)';
+        });
+        (btn as HTMLElement).style.borderColor = '#6366f1';
+        selectedGoalIcon = (btn as HTMLElement).dataset.icon || '🎯';
+        (document.getElementById('goal-icon') as HTMLInputElement).value = selectedGoalIcon;
+      });
+    });
+
+    // Save goal
+    document.getElementById('goal-save-btn')?.addEventListener('click', () => {
+      const title = (document.getElementById('goal-title') as HTMLInputElement).value.trim();
+      const target = parseFloat((document.getElementById('goal-target') as HTMLInputElement).value);
+      const current = parseFloat((document.getElementById('goal-current') as HTMLInputElement).value) || 0;
+      const deadline = (document.getElementById('goal-deadline') as HTMLInputElement).value || undefined;
+      const icon = (document.getElementById('goal-icon') as HTMLInputElement).value || '🎯';
+
+      if (!title) { showToast('Please enter a goal title', 'error'); return; }
+      if (!target || target <= 0) { showToast('Please enter a valid target amount', 'error'); return; }
+
+      const goal: Goal = {
+        id: generateId(),
+        title,
+        targetAmount: target,
+        currentAmount: current,
+        deadline,
+        icon,
+        createdAt: new Date().toISOString(),
+      };
+
+      const goals = getGoals();
+      goals.push(goal);
+      saveGoals(goals);
+
+      // Reset form
+      (document.getElementById('goal-title') as HTMLInputElement).value = '';
+      (document.getElementById('goal-target') as HTMLInputElement).value = '';
+      (document.getElementById('goal-current') as HTMLInputElement).value = '';
+      (document.getElementById('goal-deadline') as HTMLInputElement).value = '';
+
+      closeModal('goal-modal');
+      showToast('Savings goal added! 🎯', 'success');
+      renderAll();
+    });
+
+    // Modal: Update Goal
+    document.getElementById('update-goal-cancel-btn')?.addEventListener('click', () => closeModal('update-goal-modal'));
+    document.querySelector('#update-goal-modal .modal-backdrop')?.addEventListener('click', () => closeModal('update-goal-modal'));
+
+    document.getElementById('update-goal-save-btn')?.addEventListener('click', () => {
+      const id = (document.getElementById('update-goal-id') as HTMLInputElement).value;
+      const addAmount = parseFloat((document.getElementById('update-goal-amount') as HTMLInputElement).value);
+
+      if (!addAmount || addAmount <= 0) { showToast('Please enter a valid amount', 'error'); return; }
+
+      const goals = getGoals();
+      const goal = goals.find(g => g.id === id);
+      if (goal) {
+        goal.currentAmount += addAmount;
+        saveGoals(goals);
+        closeModal('update-goal-modal');
+        if (goal.currentAmount >= goal.targetAmount) {
+          showToast(`Goal "${goal.title}" reached! 🎉🎊`, 'success');
+        } else {
+          showToast(`Added ${formatINR(addAmount)} to savings! 💰`, 'success');
+        }
+        renderAll();
+      }
+    });
+
+    // Render everything
+    renderAll();
+  }
+
+  document.addEventListener('DOMContentLoaded', initPage);
+  document.addEventListener('astro:page-load', initPage);
+</script>
